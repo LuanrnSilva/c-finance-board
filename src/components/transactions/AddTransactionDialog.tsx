@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import type { CreditCard } from "@/hooks/useCreditCards";
 
 const categories = [
   { value: "shopping", label: "Compras" },
@@ -28,32 +29,26 @@ const categories = [
   { value: "other", label: "Outros" },
 ];
 
-const cards = [
-  { value: "nubank", label: "Nubank" },
-  { value: "santander", label: "Santander" },
-  { value: "itau", label: "Itaú" },
-  { value: "inter", label: "Inter" },
-  { value: "c6", label: "C6 Bank" },
-];
-
 interface AddTransactionDialogProps {
-  onAdd?: (transaction: {
+  onAdd: (transaction: {
     description: string;
     amount: number;
     type: "income" | "expense";
     category: string;
     card?: string;
+    credit_card_id?: string;
     date: string;
   }) => void;
+  cards?: CreditCard[];
 }
 
-export function AddTransactionDialog({ onAdd }: AddTransactionDialogProps) {
+export function AddTransactionDialog({ onAdd, cards = [] }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
   const [category, setCategory] = useState("");
-  const [card, setCard] = useState("");
+  const [selectedCard, setSelectedCard] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const { toast } = useToast();
 
@@ -69,12 +64,15 @@ export function AddTransactionDialog({ onAdd }: AddTransactionDialogProps) {
       return;
     }
 
-    onAdd?.({
+    const card = cards.find(c => c.id === selectedCard);
+
+    onAdd({
       description,
       amount: parseFloat(amount),
       type,
       category,
-      card: card || undefined,
+      card: card?.brand,
+      credit_card_id: selectedCard || undefined,
       date,
     });
 
@@ -87,7 +85,7 @@ export function AddTransactionDialog({ onAdd }: AddTransactionDialogProps) {
     setDescription("");
     setAmount("");
     setCategory("");
-    setCard("");
+    setSelectedCard("");
   };
 
   return (
@@ -160,17 +158,17 @@ export function AddTransactionDialog({ onAdd }: AddTransactionDialogProps) {
             </Select>
           </div>
 
-          {type === "expense" && (
+          {type === "expense" && cards.length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="card">Cartão (opcional)</Label>
-              <Select value={card} onValueChange={setCard}>
+              <Select value={selectedCard} onValueChange={setSelectedCard}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um cartão" />
                 </SelectTrigger>
                 <SelectContent>
                   {cards.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      {c.label}
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.brand.charAt(0).toUpperCase() + c.brand.slice(1)} •••• {c.last_digits}
                     </SelectItem>
                   ))}
                 </SelectContent>
