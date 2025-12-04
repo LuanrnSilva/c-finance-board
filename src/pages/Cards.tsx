@@ -1,20 +1,15 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
+import { AddCardDialog } from "@/components/cards/AddCardDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp } from "lucide-react";
-
-const cards = [
-  { brand: "nubank" as const, name: "João Silva", lastDigits: "4832", limit: 5000, used: 2340 },
-  { brand: "santander" as const, name: "João Silva", lastDigits: "7621", limit: 8000, used: 1850 },
-  { brand: "itau" as const, name: "João Silva", lastDigits: "9045", limit: 3000, used: 890 },
-  { brand: "inter" as const, name: "João Silva", lastDigits: "2187", limit: 4500, used: 3200 },
-  { brand: "c6" as const, name: "João Silva", lastDigits: "5563", limit: 6000, used: 1100 },
-];
+import { TrendingUp, Loader2 } from "lucide-react";
+import { useCreditCards } from "@/hooks/useCreditCards";
 
 export default function Cards() {
-  const totalLimit = cards.reduce((sum, c) => sum + c.limit, 0);
-  const totalUsed = cards.reduce((sum, c) => sum + c.used, 0);
+  const { cards, loading, addCard } = useCreditCards();
+
+  const totalLimit = cards.reduce((sum, c) => sum + Number(c.credit_limit), 0);
+  const totalUsed = cards.reduce((sum, c) => sum + Number(c.used_amount), 0);
   const totalAvailable = totalLimit - totalUsed;
 
   const formatCurrency = (value: number) => {
@@ -32,10 +27,7 @@ export default function Cards() {
             <h1 className="text-2xl font-bold text-foreground">Meus Cartões</h1>
             <p className="text-muted-foreground">Gerencie seus cartões de crédito</p>
           </div>
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            Adicionar Cartão
-          </Button>
+          <AddCardDialog onAdd={addCard} />
         </div>
 
         {/* Summary */}
@@ -87,11 +79,28 @@ export default function Cards() {
             <CardTitle className="text-lg">Cartões Cadastrados</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {cards.map((card, index) => (
-                <CreditCardWidget key={index} {...card} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : cards.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhum cartão cadastrado
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {cards.map((card) => (
+                  <CreditCardWidget 
+                    key={card.id} 
+                    brand={card.brand as any}
+                    name={card.name}
+                    lastDigits={card.last_digits}
+                    limit={Number(card.credit_limit)}
+                    used={Number(card.used_amount)}
+                  />
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

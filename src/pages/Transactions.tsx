@@ -11,24 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter } from "lucide-react";
-import type { Transaction } from "@/types/transaction";
-
-const allTransactions: Transaction[] = [
-  { id: "1", description: "Supermercado Extra", category: "shopping", amount: 342.50, date: "2024-12-03", type: "expense", cardBrand: "Nubank" },
-  { id: "2", description: "Uber", category: "transport", amount: 28.90, date: "2024-12-03", type: "expense", cardBrand: "Santander" },
-  { id: "3", description: "Salário", category: "other", amount: 8500, date: "2024-12-01", type: "income" },
-  { id: "4", description: "iFood", category: "food", amount: 67.80, date: "2024-12-02", type: "expense", cardBrand: "Nubank" },
-  { id: "5", description: "Netflix", category: "tech", amount: 55.90, date: "2024-12-01", type: "expense", cardBrand: "C6" },
-  { id: "6", description: "Conta de Luz", category: "home", amount: 180.00, date: "2024-11-30", type: "expense" as const },
-  { id: "7", description: "Freelance", category: "other", amount: 1500, date: "2024-11-28", type: "income" as const },
-  { id: "8", description: "Farmácia", category: "shopping", amount: 89.90, date: "2024-11-27", type: "expense" as const, cardBrand: "Itaú" },
-  { id: "9", description: "Gasolina", category: "transport", amount: 250.00, date: "2024-11-25", type: "expense" as const, cardBrand: "Santander" },
-  { id: "10", description: "Academia", category: "other", amount: 120.00, date: "2024-11-24", type: "expense" as const, cardBrand: "Nubank" },
-];
+import { Search, Filter, Loader2 } from "lucide-react";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useCreditCards } from "@/hooks/useCreditCards";
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>(allTransactions);
+  const { transactions, loading, addTransaction } = useTransactions();
+  const { cards } = useCreditCards();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -41,20 +30,24 @@ export default function Transactions() {
     return matchesSearch && matchesFilter;
   });
 
-  const handleAddTransaction = (transaction: {
+  const handleAddTransaction = async (transaction: {
     description: string;
     amount: number;
     type: "income" | "expense";
     category: string;
     card?: string;
+    credit_card_id?: string;
     date: string;
   }) => {
-    const newTransaction = {
-      id: Date.now().toString(),
-      ...transaction,
-      cardBrand: transaction.card,
-    };
-    setTransactions([newTransaction, ...transactions]);
+    await addTransaction({
+      description: transaction.description,
+      amount: transaction.amount,
+      type: transaction.type,
+      category: transaction.category,
+      card_brand: transaction.card,
+      credit_card_id: transaction.credit_card_id,
+      date: transaction.date,
+    });
   };
 
   return (
@@ -65,7 +58,7 @@ export default function Transactions() {
             <h1 className="text-2xl font-bold text-foreground">Transações</h1>
             <p className="text-muted-foreground">Gerencie suas receitas e despesas</p>
           </div>
-          <AddTransactionDialog onAdd={handleAddTransaction} />
+          <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} />
         </div>
 
         <Card>
@@ -94,13 +87,26 @@ export default function Transactions() {
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
-            {filteredTransactions.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredTransactions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma transação encontrada
               </div>
             ) : (
               filteredTransactions.map((transaction) => (
-                <TransactionItem key={transaction.id} {...transaction} />
+                <TransactionItem 
+                  key={transaction.id} 
+                  id={transaction.id}
+                  description={transaction.description}
+                  category={transaction.category}
+                  amount={transaction.amount}
+                  date={transaction.date}
+                  type={transaction.type}
+                  cardBrand={transaction.card_brand}
+                />
               ))
             )}
           </CardContent>
