@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      credit_cards: {
+        Row: {
+          brand: string
+          created_at: string
+          credit_limit: number
+          id: string
+          last_digits: string
+          name: string
+          updated_at: string
+          used_amount: number
+          user_id: string
+        }
+        Insert: {
+          brand: string
+          created_at?: string
+          credit_limit?: number
+          id?: string
+          last_digits: string
+          name: string
+          updated_at?: string
+          used_amount?: number
+          user_id: string
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          credit_limit?: number
+          id?: string
+          last_digits?: string
+          name?: string
+          updated_at?: string
+          used_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          card_brand: string | null
+          category: string
+          created_at: string
+          credit_card_id: string | null
+          date: string
+          description: string
+          id: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          card_brand?: string | null
+          category: string
+          created_at?: string
+          credit_card_id?: string | null
+          date?: string
+          description: string
+          id?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          card_brand?: string | null
+          category?: string
+          created_at?: string
+          credit_card_id?: string | null
+          date?: string
+          description?: string
+          id?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_credit_card_id_fkey"
+            columns: ["credit_card_id"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
