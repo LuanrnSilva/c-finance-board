@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
@@ -10,24 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import type { Transaction } from "@/types/transaction";
-
-// Mock data
-const initialTransactions: Transaction[] = [
-  { id: "1", description: "Supermercado Extra", category: "shopping", amount: 342.50, date: "2024-12-03", type: "expense", cardBrand: "Nubank" },
-  { id: "2", description: "Uber", category: "transport", amount: 28.90, date: "2024-12-03", type: "expense", cardBrand: "Santander" },
-  { id: "3", description: "Salário", category: "other", amount: 8500, date: "2024-12-01", type: "income" },
-  { id: "4", description: "iFood", category: "food", amount: 67.80, date: "2024-12-02", type: "expense", cardBrand: "Nubank" },
-  { id: "5", description: "Netflix", category: "tech", amount: 55.90, date: "2024-12-01", type: "expense", cardBrand: "C6" },
-];
-
-const expenseData = [
-  { name: "Alimentação", value: 1200, color: "hsl(262, 83%, 58%)" },
-  { name: "Transporte", value: 450, color: "hsl(142, 76%, 36%)" },
-  { name: "Compras", value: 890, color: "hsl(38, 92%, 50%)" },
-  { name: "Casa", value: 2100, color: "hsl(0, 84%, 60%)" },
-  { name: "Outros", value: 320, color: "hsl(200, 95%, 45%)" },
-];
+import { useTransactions } from "@/hooks/useTransactions";
+import { useCreditCards } from "@/hooks/useCreditCards";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const monthlyData = [
   { month: "Jul", income: 8500, expenses: 5200 },
@@ -39,7 +23,8 @@ const monthlyData = [
 ];
 
 export default function Dashboard() {
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const { transactions, loading: transactionsLoading, addTransaction } = useTransactions();
+  const { cards, loading: cardsLoading } = useCreditCards();
   
   const totalIncome = transactions
     .filter((t) => t.type === "income")
@@ -51,7 +36,20 @@ export default function Dashboard() {
   
   const balance = totalIncome - totalExpenses;
 
-  const handleAddTransaction = (transaction: {
+  // Calculate expense data by category
+  const expenseData = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((acc, t) => {
+      const existing = acc.find((item) => item.name === t.category);
+      if (existing) {
+        existing.value += t.amount;
+      } else {
+        acc.push({ name: t.category, value: t.amount, color: getCategoryColor(t.category) });
+      }
+      return acc;
+    }, [] as { name: string; value: number; color: string }[]);
+
+  const handleAddTransaction = async (transaction: {
     description: string;
     amount: number;
     type: "income" | "expense";
@@ -59,13 +57,17 @@ export default function Dashboard() {
     card?: string;
     date: string;
   }) => {
-    const newTransaction = {
-      id: Date.now().toString(),
-      ...transaction,
-      cardBrand: transaction.card,
-    };
-    setTransactions([newTransaction, ...transactions]);
+    await addTransaction({
+      description: transaction.description,
+      amount: transaction.amount,
+      type: transaction.type,
+      category: transaction.category,
+      card_brand: transaction.card,
+      date: transaction.date,
+    });
   };
+
+  const isLoading = transactionsLoading || cardsLoading;
 
   return (
     <AppLayout>
@@ -73,7 +75,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Olá, João!</h1>
+            <h1 className="text-2xl font-bold text-foreground">Olá!</h1>
             <p className="text-muted-foreground">Aqui está o resumo das suas finanças</p>
           </div>
           <div className="flex items-center gap-2">
@@ -89,31 +91,37 @@ export default function Dashboard() {
 
         {/* Balance & Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <BalanceCard
-            balance={balance}
-            income={totalIncome}
-            expenses={totalExpenses}
-          />
-          <CreditCardWidget
-            brand="nubank"
-            name="João Silva"
-            lastDigits="4832"
-            limit={5000}
-            used={2340}
-          />
-          <CreditCardWidget
-            brand="santander"
-            name="João Silva"
-            lastDigits="7621"
-            limit={8000}
-            used={1850}
-          />
+          {isLoading ? (
+            <>
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+            </>
+          ) : (
+            <>
+              <BalanceCard
+                balance={balance}
+                income={totalIncome}
+                expenses={totalExpenses}
+              />
+              {cards.slice(0, 2).map((card) => (
+                <CreditCardWidget
+                  key={card.id}
+                  brand={card.brand as "nubank" | "santander" | "c6" | "itau" | "bb" | "inter"}
+                  name={card.name}
+                  lastDigits={card.last_digits}
+                  limit={card.credit_limit}
+                  used={card.used_amount}
+                />
+              ))}
+            </>
+          )}
         </div>
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <MonthlyChart data={monthlyData} />
-          <ExpenseChart data={expenseData} />
+          <ExpenseChart data={expenseData.length > 0 ? expenseData : [{ name: "Sem dados", value: 0, color: "hsl(var(--muted))" }]} />
         </div>
 
         {/* Recent Transactions */}
@@ -128,12 +136,43 @@ export default function Dashboard() {
             </Link>
           </CardHeader>
           <CardContent className="space-y-1">
-            {transactions.slice(0, 5).map((transaction) => (
-              <TransactionItem key={transaction.id} {...transaction} />
-            ))}
+            {isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16" />
+                ))}
+              </div>
+            ) : transactions.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">Nenhuma transação encontrada</p>
+            ) : (
+              transactions.slice(0, 5).map((transaction) => (
+                <TransactionItem
+                  key={transaction.id}
+                  id={transaction.id}
+                  description={transaction.description}
+                  category={transaction.category}
+                  amount={transaction.amount}
+                  date={transaction.date}
+                  type={transaction.type as "income" | "expense"}
+                  cardBrand={transaction.card_brand || undefined}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
     </AppLayout>
   );
+}
+
+function getCategoryColor(category: string): string {
+  const colors: Record<string, string> = {
+    food: "hsl(262, 83%, 58%)",
+    transport: "hsl(142, 76%, 36%)",
+    shopping: "hsl(38, 92%, 50%)",
+    home: "hsl(0, 84%, 60%)",
+    tech: "hsl(200, 95%, 45%)",
+    other: "hsl(280, 60%, 50%)",
+  };
+  return colors[category] || colors.other;
 }
