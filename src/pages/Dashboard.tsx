@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 const monthlyData = [
   { month: "Jul", income: 8500, expenses: 5200 },
@@ -23,8 +24,11 @@ const monthlyData = [
 ];
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { transactions, loading: transactionsLoading, addTransaction } = useTransactions();
   const { cards, loading: cardsLoading } = useCreditCards();
+  
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
   
   const totalIncome = transactions
     .filter((t) => t.type === "income")
@@ -75,7 +79,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Olá!</h1>
+            <h1 className="text-2xl font-bold text-foreground">Olá, {userName}!</h1>
             <p className="text-muted-foreground">Aqui está o resumo das suas finanças</p>
           </div>
           <div className="flex items-center gap-2">
