@@ -6,7 +6,7 @@ import { TrendingUp, Loader2 } from "lucide-react";
 import { useCreditCards } from "@/hooks/useCreditCards";
 
 export default function Cards() {
-  const { cards, loading, addCard } = useCreditCards();
+  const { cards, loading, addCard, updateCard } = useCreditCards();
 
   const totalLimit = cards.reduce((sum, c) => sum + Number(c.credit_limit), 0);
   const totalUsed = cards.reduce((sum, c) => sum + Number(c.used_amount), 0);
@@ -92,11 +92,13 @@ export default function Cards() {
                 {cards.map((card) => (
                   <CreditCardWidget 
                     key={card.id} 
-                    brand={card.brand as any}
+                    id={card.id}
+                    brand={card.brand}
                     name={card.name}
                     lastDigits={card.last_digits}
                     limit={Number(card.credit_limit)}
                     used={Number(card.used_amount)}
+                    onUpdateLimit={updateCard}
                   />
                 ))}
               </div>

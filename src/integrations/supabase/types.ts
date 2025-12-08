@@ -50,6 +50,30 @@ export type Database = {
         }
         Relationships: []
       }
+      people: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -87,6 +111,7 @@ export type Database = {
           date: string
           description: string
           id: string
+          person_id: string | null
           type: string
           updated_at: string
           user_id: string
@@ -100,6 +125,7 @@ export type Database = {
           date?: string
           description: string
           id?: string
+          person_id?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -113,6 +139,7 @@ export type Database = {
           date?: string
           description?: string
           id?: string
+          person_id?: string | null
           type?: string
           updated_at?: string
           user_id?: string
@@ -123,6 +150,13 @@ export type Database = {
             columns: ["credit_card_id"]
             isOneToOne: false
             referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
             referencedColumns: ["id"]
           },
         ]
