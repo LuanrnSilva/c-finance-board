@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import type { CreditCard } from "@/hooks/useCreditCards";
+import type { Person } from "@/hooks/usePeople";
 
 const categories = [
   { value: "shopping", label: "Compras" },
@@ -37,18 +38,21 @@ interface AddTransactionDialogProps {
     category: string;
     card?: string;
     credit_card_id?: string;
+    person_id?: string;
     date: string;
   }) => void;
   cards?: CreditCard[];
+  people?: Person[];
 }
 
-export function AddTransactionDialog({ onAdd, cards = [] }: AddTransactionDialogProps) {
+export function AddTransactionDialog({ onAdd, cards = [], people = [] }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense">("expense");
   const [category, setCategory] = useState("");
   const [selectedCard, setSelectedCard] = useState("");
+  const [selectedPerson, setSelectedPerson] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const { toast } = useToast();
 
@@ -73,6 +77,7 @@ export function AddTransactionDialog({ onAdd, cards = [] }: AddTransactionDialog
       category,
       card: card?.brand,
       credit_card_id: selectedCard || undefined,
+      person_id: selectedPerson || undefined,
       date,
     });
 
@@ -86,6 +91,7 @@ export function AddTransactionDialog({ onAdd, cards = [] }: AddTransactionDialog
     setAmount("");
     setCategory("");
     setSelectedCard("");
+    setSelectedPerson("");
   };
 
   return (
@@ -169,6 +175,24 @@ export function AddTransactionDialog({ onAdd, cards = [] }: AddTransactionDialog
                   {cards.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.brand.charAt(0).toUpperCase() + c.brand.slice(1)} •••• {c.last_digits}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {people.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="person">Pessoa (opcional)</Label>
+              <Select value={selectedPerson} onValueChange={setSelectedPerson}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma pessoa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {people.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

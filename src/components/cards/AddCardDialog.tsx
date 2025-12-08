@@ -26,6 +26,10 @@ const brands = [
   { value: "inter", label: "Inter" },
   { value: "c6", label: "C6 Bank" },
   { value: "bb", label: "Banco do Brasil" },
+  { value: "porto", label: "Porto" },
+  { value: "bradesco", label: "Bradesco" },
+  { value: "mercadopago", label: "Mercado Pago" },
+  { value: "pan", label: "Banco Pan" },
 ];
 
 interface AddCardDialogProps {

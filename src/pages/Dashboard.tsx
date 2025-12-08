@@ -111,7 +111,8 @@ export default function Dashboard() {
               {cards.slice(0, 2).map((card) => (
                 <CreditCardWidget
                   key={card.id}
-                  brand={card.brand as "nubank" | "santander" | "c6" | "itau" | "bb" | "inter"}
+                  id={card.id}
+                  brand={card.brand}
                   name={card.name}
                   lastDigits={card.last_digits}
                   limit={card.credit_limit}

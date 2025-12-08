@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { TransactionItem } from "@/components/dashboard/TransactionItem";
 import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
+import { ManagePeopleDialog } from "@/components/people/ManagePeopleDialog";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,10 +15,12 @@ import {
 import { Search, Filter, Loader2 } from "lucide-react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
+import { usePeople } from "@/hooks/usePeople";
 
 export default function Transactions() {
-  const { transactions, loading, addTransaction } = useTransactions();
+  const { transactions, loading, addTransaction, deleteTransaction } = useTransactions();
   const { cards } = useCreditCards();
+  const { people, addPerson, deletePerson } = usePeople();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -37,6 +40,7 @@ export default function Transactions() {
     category: string;
     card?: string;
     credit_card_id?: string;
+    person_id?: string;
     date: string;
   }) => {
     await addTransaction({
@@ -46,6 +50,7 @@ export default function Transactions() {
       category: transaction.category,
       card_brand: transaction.card,
       credit_card_id: transaction.credit_card_id,
+      person_id: transaction.person_id,
       date: transaction.date,
     });
   };
@@ -58,7 +63,10 @@ export default function Transactions() {
             <h1 className="text-2xl font-bold text-foreground">Transações</h1>
             <p className="text-muted-foreground">Gerencie suas receitas e despesas</p>
           </div>
-          <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} />
+          <div className="flex flex-wrap gap-2">
+            <ManagePeopleDialog people={people} onAdd={addPerson} onDelete={deletePerson} />
+            <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} people={people} />
+          </div>
         </div>
 
         <Card>
@@ -106,6 +114,8 @@ export default function Transactions() {
                   date={transaction.date}
                   type={transaction.type}
                   cardBrand={transaction.card_brand}
+                  personName={transaction.person_name}
+                  onDelete={deleteTransaction}
                 />
               ))
             )}

@@ -11,6 +11,8 @@ export interface Transaction {
   type: "income" | "expense";
   card_brand?: string;
   credit_card_id?: string;
+  person_id?: string;
+  person_name?: string;
 }
 
 export function useTransactions() {
@@ -29,14 +31,18 @@ export function useTransactions() {
 
       const { data, error } = await supabase
         .from("transactions")
-        .select("*")
+        .select(`
+          *,
+          people:person_id (name)
+        `)
         .order("date", { ascending: false });
 
       if (error) throw error;
       
       setTransactions(data?.map(t => ({
         ...t,
-        type: t.type as "income" | "expense"
+        type: t.type as "income" | "expense",
+        person_name: t.people?.name,
       })) || []);
     } catch (error: any) {
       toast({
@@ -56,6 +62,7 @@ export function useTransactions() {
     category: string;
     card_brand?: string;
     credit_card_id?: string;
+    person_id?: string;
     date: string;
   }) => {
     try {
@@ -68,14 +75,18 @@ export function useTransactions() {
           user_id: user.id,
           ...transaction,
         })
-        .select()
+        .select(`
+          *,
+          people:person_id (name)
+        `)
         .single();
 
       if (error) throw error;
 
       setTransactions(prev => [{
         ...data,
-        type: data.type as "income" | "expense"
+        type: data.type as "income" | "expense",
+        person_name: data.people?.name,
       }, ...prev]);
       
       return { success: true };
