@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
+import { usePeople } from "@/hooks/usePeople";
 
 const categoryLabels: Record<string, string> = {
   shopping: "Compras",
@@ -45,9 +46,10 @@ const categoryColors: Record<string, string> = {
 export default function Reports() {
   const { transactions, loading: transactionsLoading } = useTransactions();
   const { cards, loading: cardsLoading } = useCreditCards();
+  const { people, loading: peopleLoading } = usePeople();
   const [period, setPeriod] = useState("3");
 
-  const loading = transactionsLoading || cardsLoading;
+  const loading = transactionsLoading || cardsLoading || peopleLoading;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -137,6 +139,25 @@ export default function Reports() {
 
     return Object.values(byCard).sort((a, b) => b.value - a.value);
   }, [periodTransactions]);
+
+  const personExpenses = useMemo(() => {
+    const byPerson: Record<string, { name: string; value: number }> = {};
+
+    periodTransactions
+      .filter(t => t.type === "expense" && t.person_id)
+      .forEach(t => {
+        const personId = t.person_id!;
+        const person = people.find(p => p.id === personId);
+        const personName = t.person_name || person?.name || "Desconhecido";
+        
+        if (!byPerson[personId]) {
+          byPerson[personId] = { name: personName, value: 0 };
+        }
+        byPerson[personId].value += t.amount;
+      });
+
+    return Object.values(byPerson).sort((a, b) => b.value - a.value);
+  }, [periodTransactions, people]);
 
   return (
     <AppLayout>
@@ -236,6 +257,42 @@ export default function Reports() {
                         }}
                       />
                       <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Person Expenses Chart */}
+            {personExpenses.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Gastos por Pessoa</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={personExpenses} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis
+                        type="number"
+                        tickFormatter={formatCurrency}
+                        tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                        width={100}
+                      />
+                      <Tooltip
+                        formatter={(value: number) => formatCurrency(value)}
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Bar dataKey="value" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>

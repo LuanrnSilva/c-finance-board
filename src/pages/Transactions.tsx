@@ -3,6 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { TransactionItem } from "@/components/dashboard/TransactionItem";
 import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
 import { ManagePeopleDialog } from "@/components/people/ManagePeopleDialog";
+import { ManageCategoriesDialog } from "@/components/categories/ManageCategoriesDialog";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,11 +17,13 @@ import { Search, Filter, Loader2 } from "lucide-react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { usePeople } from "@/hooks/usePeople";
+import { useCategories } from "@/hooks/useCategories";
 
 export default function Transactions() {
-  const { transactions, loading, addTransaction, deleteTransaction } = useTransactions();
+  const { transactions, loading, addTransaction, deleteTransaction, updateTransaction } = useTransactions();
   const { cards } = useCreditCards();
   const { people, addPerson, deletePerson } = usePeople();
+  const { categories, customCategories, addCategory, deleteCategory } = useCategories();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -64,8 +67,14 @@ export default function Transactions() {
             <p className="text-muted-foreground">Gerencie suas receitas e despesas</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <ManageCategoriesDialog
+              categories={categories}
+              customCategories={customCategories}
+              onAdd={addCategory}
+              onDelete={deleteCategory}
+            />
             <ManagePeopleDialog people={people} onAdd={addPerson} onDelete={deletePerson} />
-            <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} people={people} />
+            <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} people={people} categories={categories} />
           </div>
         </div>
 
@@ -107,15 +116,12 @@ export default function Transactions() {
               filteredTransactions.map((transaction) => (
                 <TransactionItem 
                   key={transaction.id} 
-                  id={transaction.id}
-                  description={transaction.description}
-                  category={transaction.category}
-                  amount={transaction.amount}
-                  date={transaction.date}
-                  type={transaction.type}
-                  cardBrand={transaction.card_brand}
-                  personName={transaction.person_name}
+                  transaction={transaction}
                   onDelete={deleteTransaction}
+                  onUpdate={updateTransaction}
+                  cards={cards}
+                  people={people}
+                  categories={categories}
                 />
               ))
             )}

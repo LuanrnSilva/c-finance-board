@@ -153,13 +153,10 @@ export default function Dashboard() {
               transactions.slice(0, 5).map((transaction) => (
                 <TransactionItem
                   key={transaction.id}
-                  id={transaction.id}
-                  description={transaction.description}
-                  category={transaction.category}
-                  amount={transaction.amount}
-                  date={transaction.date}
-                  type={transaction.type as "income" | "expense"}
-                  cardBrand={transaction.card_brand || undefined}
+                  transaction={{
+                    ...transaction,
+                    type: transaction.type as "income" | "expense",
+                  }}
                 />
               ))
             )}
