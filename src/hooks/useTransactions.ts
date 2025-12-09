@@ -121,6 +121,51 @@ export function useTransactions() {
     }
   };
 
+  const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
+    try {
+      const { data, error } = await supabase
+        .from("transactions")
+        .update({
+          description: updates.description,
+          amount: updates.amount,
+          type: updates.type,
+          category: updates.category,
+          card_brand: updates.card_brand,
+          credit_card_id: updates.credit_card_id || null,
+          person_id: updates.person_id || null,
+          date: updates.date,
+        })
+        .eq("id", id)
+        .select(`
+          *,
+          people:person_id (name)
+        `)
+        .single();
+
+      if (error) throw error;
+
+      setTransactions(prev =>
+        prev.map(t =>
+          t.id === id
+            ? {
+                ...data,
+                type: data.type as "income" | "expense",
+                person_name: data.people?.name,
+              }
+            : t
+        )
+      );
+      return { success: true };
+    } catch (error: any) {
+      toast({
+        title: "Erro ao atualizar transação",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { success: false, error };
+    }
+  };
+
   useEffect(() => {
     fetchTransactions();
   }, []);
@@ -130,6 +175,7 @@ export function useTransactions() {
     loading,
     addTransaction,
     deleteTransaction,
+    updateTransaction,
     refetch: fetchTransactions,
   };
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShoppingBag, Coffee, Car, Home, Smartphone, CreditCard, Trash2, User } from "lucide-react";
+import { ShoppingBag, Coffee, Car, Home, Smartphone, CreditCard, Trash2, User, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,17 +13,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { EditTransactionDialog } from "@/components/transactions/EditTransactionDialog";
+import type { Transaction } from "@/hooks/useTransactions";
+import type { CreditCard as CreditCardType } from "@/hooks/useCreditCards";
+import type { Person } from "@/hooks/usePeople";
+import type { Category } from "@/hooks/useCategories";
 
 interface TransactionItemProps {
-  id: string;
-  description: string;
-  category: string;
-  amount: number;
-  date: string;
-  type: "income" | "expense";
-  cardBrand?: string;
-  personName?: string;
+  transaction: Transaction;
   onDelete?: (id: string) => Promise<{ success: boolean }>;
+  onUpdate?: (id: string, updates: Partial<Transaction>) => Promise<{ success: boolean }>;
+  cards?: CreditCardType[];
+  people?: Person[];
+  categories?: Category[];
 }
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -36,18 +38,16 @@ const categoryIcons: Record<string, React.ElementType> = {
 };
 
 export function TransactionItem({
-  id,
-  description,
-  category,
-  amount,
-  date,
-  type,
-  cardBrand,
-  personName,
+  transaction,
   onDelete,
+  onUpdate,
+  cards = [],
+  people = [],
+  categories = [],
 }: TransactionItemProps) {
   const [deleting, setDeleting] = useState(false);
-  const Icon = categoryIcons[category] || CreditCard;
+  const { id, description, category, amount, date, type, card_brand: cardBrand, person_name: personName } = transaction;
+  const Icon = categoryIcons[category] || Tag;
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -96,43 +96,55 @@ export function TransactionItem({
       </div>
       
       <p className={cn(
-        "font-semibold",
+        "font-semibold whitespace-nowrap",
         type === "income" ? "text-success" : "text-destructive"
       )}>
         {type === "income" ? "+" : "-"}{formatCurrency(amount)}
       </p>
 
-      {onDelete && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tem certeza que deseja excluir "{description}"? Esta ação não pode ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                disabled={deleting}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      <div className="flex items-center gap-1">
+        {onUpdate && (
+          <EditTransactionDialog
+            transaction={transaction}
+            onUpdate={onUpdate}
+            cards={cards}
+            people={people}
+            categories={categories}
+          />
+        )}
+
+        {onDelete && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               >
-                {deleting ? "Excluindo..." : "Excluir"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja excluir "{description}"? Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {deleting ? "Excluindo..." : "Excluir"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </div>
     </div>
   );
 }

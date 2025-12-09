@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
+      }
       credit_cards: {
         Row: {
           brand: string

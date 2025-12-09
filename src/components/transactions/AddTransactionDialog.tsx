@@ -20,15 +20,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
-
-const categories = [
-  { value: "shopping", label: "Compras" },
-  { value: "food", label: "Alimentação" },
-  { value: "transport", label: "Transporte" },
-  { value: "home", label: "Casa" },
-  { value: "tech", label: "Tecnologia" },
-  { value: "other", label: "Outros" },
-];
+import type { Category } from "@/hooks/useCategories";
 
 interface AddTransactionDialogProps {
   onAdd: (transaction: {
@@ -43,9 +35,10 @@ interface AddTransactionDialogProps {
   }) => void;
   cards?: CreditCard[];
   people?: Person[];
+  categories?: Category[];
 }
 
-export function AddTransactionDialog({ onAdd, cards = [], people = [] }: AddTransactionDialogProps) {
+export function AddTransactionDialog({ onAdd, cards = [], people = [], categories = [] }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -156,8 +149,8 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [] }: AddTran
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
+                  <SelectItem key={cat.id} value={cat.value}>
+                    {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>
