@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
@@ -13,20 +14,13 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-
-const monthlyData = [
-  { month: "Jul", income: 8500, expenses: 5200 },
-  { month: "Ago", income: 8500, expenses: 4800 },
-  { month: "Set", income: 9200, expenses: 5100 },
-  { month: "Out", income: 8500, expenses: 5600 },
-  { month: "Nov", income: 8500, expenses: 4900 },
-  { month: "Dez", income: 8500, expenses: 4960 },
-];
+import { subMonths, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { transactions, loading: transactionsLoading, addTransaction } = useTransactions();
-  const { cards, loading: cardsLoading } = useCreditCards();
+  const { cards, loading: cardsLoading, updateCard } = useCreditCards();
   
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
   
@@ -52,6 +46,39 @@ export default function Dashboard() {
       }
       return acc;
     }, [] as { name: string; value: number; color: string }[]);
+
+  // Calculate monthly data from real transactions
+  const monthlyData = useMemo(() => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const month = subMonths(now, i);
+      const monthStr = format(month, 'MMM', { locale: ptBR });
+      
+      const monthTransactions = transactions.filter(t => {
+        const tDate = new Date(t.date);
+        return tDate.getMonth() === month.getMonth() && 
+               tDate.getFullYear() === month.getFullYear();
+      });
+      
+      const income = monthTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+        
+      const expenses = monthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      months.push({ 
+        month: monthStr.charAt(0).toUpperCase() + monthStr.slice(1), 
+        income, 
+        expenses 
+      });
+    }
+    
+    return months;
+  }, [transactions]);
 
   const handleAddTransaction = async (transaction: {
     description: string;
@@ -117,6 +144,7 @@ export default function Dashboard() {
                   lastDigits={card.last_digits}
                   limit={card.credit_limit}
                   used={card.used_amount}
+                  onUpdateLimit={updateCard}
                 />
               ))}
             </>
