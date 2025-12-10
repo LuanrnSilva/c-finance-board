@@ -54,7 +54,7 @@ export function EditCardLimitDialog({ cardId, cardName, currentLimit, onUpdate }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-white/80 hover:text-white hover:bg-white/20">
+        <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-20 text-white/80 hover:text-white hover:bg-white/20">
           <Pencil className="w-4 h-4" />
         </Button>
       </DialogTrigger>
