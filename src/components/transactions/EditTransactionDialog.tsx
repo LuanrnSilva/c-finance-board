@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
@@ -46,6 +47,9 @@ export function EditTransactionDialog({
   const [selectedCard, setSelectedCard] = useState(transaction.credit_card_id || "");
   const [selectedPerson, setSelectedPerson] = useState(transaction.person_id || "");
   const [date, setDate] = useState(transaction.date);
+  const [isInstallment, setIsInstallment] = useState(!!transaction.installment_total);
+  const [installmentCurrent, setInstallmentCurrent] = useState(transaction.installment_current?.toString() || "1");
+  const [installmentTotal, setInstallmentTotal] = useState(transaction.installment_total?.toString() || "2");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -58,6 +62,9 @@ export function EditTransactionDialog({
       setSelectedCard(transaction.credit_card_id || "");
       setSelectedPerson(transaction.person_id || "");
       setDate(transaction.date);
+      setIsInstallment(!!transaction.installment_total);
+      setInstallmentCurrent(transaction.installment_current?.toString() || "1");
+      setInstallmentTotal(transaction.installment_total?.toString() || "2");
     }
   }, [open, transaction]);
 
@@ -85,6 +92,8 @@ export function EditTransactionDialog({
       credit_card_id: selectedCard || undefined,
       person_id: selectedPerson || undefined,
       date,
+      installment_current: isInstallment && type === "expense" ? parseInt(installmentCurrent) : undefined,
+      installment_total: isInstallment && type === "expense" ? parseInt(installmentTotal) : undefined,
     });
     setLoading(false);
 
@@ -186,6 +195,43 @@ export function EditTransactionDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {type === "expense" && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="edit-installment"
+                  checked={isInstallment}
+                  onCheckedChange={setIsInstallment}
+                />
+                <Label htmlFor="edit-installment">Parcelado</Label>
+              </div>
+              {isInstallment && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-installment-current">Parcela atual</Label>
+                    <Input
+                      id="edit-installment-current"
+                      type="number"
+                      min="1"
+                      value={installmentCurrent}
+                      onChange={(e) => setInstallmentCurrent(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-installment-total">Total de parcelas</Label>
+                    <Input
+                      id="edit-installment-total"
+                      type="number"
+                      min="2"
+                      value={installmentTotal}
+                      onChange={(e) => setInstallmentTotal(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

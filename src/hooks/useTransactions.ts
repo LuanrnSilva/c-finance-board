@@ -13,6 +13,8 @@ export interface Transaction {
   credit_card_id?: string;
   person_id?: string;
   person_name?: string;
+  installment_current?: number;
+  installment_total?: number;
 }
 
 export function useTransactions() {
@@ -43,6 +45,8 @@ export function useTransactions() {
         ...t,
         type: t.type as "income" | "expense",
         person_name: t.people?.name,
+        installment_current: t.installment_current,
+        installment_total: t.installment_total,
       })) || []);
     } catch (error: any) {
       toast({
@@ -64,6 +68,8 @@ export function useTransactions() {
     credit_card_id?: string;
     person_id?: string;
     date: string;
+    installment_current?: number;
+    installment_total?: number;
   }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -87,6 +93,8 @@ export function useTransactions() {
         ...data,
         type: data.type as "income" | "expense",
         person_name: data.people?.name,
+        installment_current: data.installment_current,
+        installment_total: data.installment_total,
       }, ...prev]);
       
       return { success: true };
@@ -134,6 +142,8 @@ export function useTransactions() {
           credit_card_id: updates.credit_card_id || null,
           person_id: updates.person_id || null,
           date: updates.date,
+          installment_current: updates.installment_current || null,
+          installment_total: updates.installment_total || null,
         })
         .eq("id", id)
         .select(`
@@ -151,6 +161,8 @@ export function useTransactions() {
                 ...data,
                 type: data.type as "income" | "expense",
                 person_name: data.people?.name,
+                installment_current: data.installment_current,
+                installment_total: data.installment_total,
               }
             : t
         )
