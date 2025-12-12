@@ -141,6 +141,8 @@ export type Database = {
           date: string
           description: string
           id: string
+          installment_current: number | null
+          installment_total: number | null
           person_id: string | null
           type: string
           updated_at: string
@@ -155,6 +157,8 @@ export type Database = {
           date?: string
           description: string
           id?: string
+          installment_current?: number | null
+          installment_total?: number | null
           person_id?: string | null
           type: string
           updated_at?: string
@@ -169,6 +173,8 @@ export type Database = {
           date?: string
           description?: string
           id?: string
+          installment_current?: number | null
+          installment_total?: number | null
           person_id?: string | null
           type?: string
           updated_at?: string

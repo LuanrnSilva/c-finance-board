@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
@@ -32,6 +33,8 @@ interface AddTransactionDialogProps {
     credit_card_id?: string;
     person_id?: string;
     date: string;
+    installment_current?: number;
+    installment_total?: number;
   }) => void;
   cards?: CreditCard[];
   people?: Person[];
@@ -47,6 +50,9 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
   const [selectedCard, setSelectedCard] = useState("");
   const [selectedPerson, setSelectedPerson] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [isInstallment, setIsInstallment] = useState(false);
+  const [installmentCurrent, setInstallmentCurrent] = useState("1");
+  const [installmentTotal, setInstallmentTotal] = useState("2");
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,6 +78,8 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
       credit_card_id: selectedCard || undefined,
       person_id: selectedPerson || undefined,
       date,
+      installment_current: isInstallment && type === "expense" ? parseInt(installmentCurrent) : undefined,
+      installment_total: isInstallment && type === "expense" ? parseInt(installmentTotal) : undefined,
     });
 
     toast({
@@ -85,6 +93,9 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
     setCategory("");
     setSelectedCard("");
     setSelectedPerson("");
+    setIsInstallment(false);
+    setInstallmentCurrent("1");
+    setInstallmentTotal("2");
   };
 
   return (
@@ -172,6 +183,43 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {type === "expense" && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="installment"
+                  checked={isInstallment}
+                  onCheckedChange={setIsInstallment}
+                />
+                <Label htmlFor="installment">Parcelado</Label>
+              </div>
+              {isInstallment && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="installment-current">Parcela atual</Label>
+                    <Input
+                      id="installment-current"
+                      type="number"
+                      min="1"
+                      value={installmentCurrent}
+                      onChange={(e) => setInstallmentCurrent(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="installment-total">Total de parcelas</Label>
+                    <Input
+                      id="installment-total"
+                      type="number"
+                      min="2"
+                      value={installmentTotal}
+                      onChange={(e) => setInstallmentTotal(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
