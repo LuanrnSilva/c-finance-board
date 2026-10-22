@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
@@ -13,6 +13,16 @@ import { Link } from "react-router-dom";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cardUsedAmount, isSameMonth, colorFromName } from "@/lib/utils";
+import { useCategories } from "@/hooks/useCategories";
+import type { NewTransaction } from "@/types/transaction";
 import { useAuth } from "@/contexts/AuthContext";
 import { subMonths, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -24,49 +34,62 @@ export default function Dashboard() {
   
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
   
-  const totalIncome = transactions
+  const { categories } = useCategories();
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(format(now, "yyyy-MM"));
+  const [selYear, selMonthIdx] = selectedMonth.split("-").map(Number);
+  const selMonth = selMonthIdx - 1;
+
+  const monthOptions = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const d = subMonths(new Date(), i);
+      const label = format(d, "MMMM 'de' yyyy", { locale: ptBR });
+      return { value: format(d, "yyyy-MM"), label: label.charAt(0).toUpperCase() + label.slice(1) };
+    });
+  }, []);
+
+  const monthTransactions = transactions.filter((t) => isSameMonth(t.date, selYear, selMonth));
+
+  const totalIncome = monthTransactions
     .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
   
-  const totalExpenses = transactions
+  const totalExpenses = monthTransactions
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
   
   const balance = totalIncome - totalExpenses;
 
-  // Calculate expense data by category
-  const expenseData = transactions
+  // Calculate expense data by category (selected month)
+  const expenseData = monthTransactions
     .filter((t) => t.type === "expense")
     .reduce((acc, t) => {
-      const existing = acc.find((item) => item.name === t.category);
+      const label = categories.find((c) => c.value === t.category)?.name || t.category;
+      const existing = acc.find((item) => item.name === label);
       if (existing) {
         existing.value += t.amount;
       } else {
-        acc.push({ name: t.category, value: t.amount, color: getCategoryColor(t.category) });
+        acc.push({ name: label, value: t.amount, color: colorFromName(label) });
       }
       return acc;
     }, [] as { name: string; value: number; color: string }[]);
 
-  // Calculate monthly data from real transactions
+  // Monthly data: 6 months ending at the selected month
   const monthlyData = useMemo(() => {
     const months = [];
-    const now = new Date();
+    const ref = new Date(selYear, selMonth, 1);
     
     for (let i = 5; i >= 0; i--) {
-      const month = subMonths(now, i);
+      const month = subMonths(ref, i);
       const monthStr = format(month, 'MMM', { locale: ptBR });
       
-      const monthTransactions = transactions.filter(t => {
-        const tDate = new Date(t.date);
-        return tDate.getMonth() === month.getMonth() && 
-               tDate.getFullYear() === month.getFullYear();
-      });
+      const mt = transactions.filter(t => isSameMonth(t.date, month.getFullYear(), month.getMonth()));
       
-      const income = monthTransactions
+      const income = mt
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + t.amount, 0);
         
-      const expenses = monthTransactions
+      const expenses = mt
         .filter(t => t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
       
@@ -78,24 +101,11 @@ export default function Dashboard() {
     }
     
     return months;
-  }, [transactions]);
+  }, [transactions, selYear, selMonth]);
 
-  const handleAddTransaction = async (transaction: {
-    description: string;
-    amount: number;
-    type: "income" | "expense";
-    category: string;
-    card?: string;
-    date: string;
-  }) => {
-    await addTransaction({
-      description: transaction.description,
-      amount: transaction.amount,
-      type: transaction.type,
-      category: transaction.category,
-      card_brand: transaction.card,
-      date: transaction.date,
-    });
+  const handleAddTransaction = async (transaction: Omit<NewTransaction, "card_brand"> & { card?: string }) => {
+    const { card, ...rest } = transaction;
+    await addTransaction({ ...rest, card_brand: card });
   };
 
   const isLoading = transactionsLoading || cardsLoading;
@@ -110,13 +120,23 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Aqui está o resumo das suas finanças</p>
           </div>
           <div className="flex items-center gap-2">
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Mês" />
+              </SelectTrigger>
+              <SelectContent>
+                {monthOptions.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button variant="outline" size="icon" className="relative">
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full text-[10px] text-destructive-foreground flex items-center justify-center">
                 2
               </span>
             </Button>
-            <AddTransactionDialog onAdd={handleAddTransaction} />
+            <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} categories={categories} />
           </div>
         </div>
 
@@ -143,7 +163,7 @@ export default function Dashboard() {
                   name={card.name}
                   lastDigits={card.last_digits}
                   limit={card.credit_limit}
-                  used={card.used_amount}
+                  used={cardUsedAmount(transactions, card.id, now.getFullYear(), now.getMonth())}
                   onUpdateLimit={updateCard}
                 />
               ))}
@@ -193,16 +213,4 @@ export default function Dashboard() {
       </div>
     </AppLayout>
   );
-}
-
-function getCategoryColor(category: string): string {
-  const colors: Record<string, string> = {
-    food: "hsl(262, 83%, 58%)",
-    transport: "hsl(142, 76%, 36%)",
-    shopping: "hsl(38, 92%, 50%)",
-    home: "hsl(0, 84%, 60%)",
-    tech: "hsl(200, 95%, 45%)",
-    other: "hsl(280, 60%, 50%)",
-  };
-  return colors[category] || colors.other;
 }

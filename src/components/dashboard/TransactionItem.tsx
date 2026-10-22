@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ShoppingBag, Coffee, Car, Home, Smartphone, CreditCard, Trash2, User, Tag } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, parseLocalDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -21,7 +21,7 @@ import type { Category } from "@/hooks/useCategories";
 
 interface TransactionItemProps {
   transaction: Transaction;
-  onDelete?: (id: string) => Promise<{ success: boolean }>;
+  onDelete?: (id: string, scope?: "single" | "group") => Promise<{ success: boolean }>;
   onUpdate?: (id: string, updates: Partial<Transaction>) => Promise<{ success: boolean }>;
   cards?: CreditCardType[];
   people?: Person[];
@@ -57,16 +57,17 @@ export function TransactionItem({
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("pt-BR", {
+    return parseLocalDate(dateStr).toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "short",
     });
   };
 
-  const handleDelete = async () => {
+  const isGrouped = !!transaction.installment_group_id;
+  const handleDelete = async (scope: "single" | "group" = "single") => {
     if (!onDelete) return;
     setDeleting(true);
-    await onDelete(id);
+    await onDelete(id, scope);
     setDeleting(false);
   };
 
@@ -133,17 +134,28 @@ export function TransactionItem({
               <AlertDialogHeader>
                 <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja excluir "{description}"? Esta ação não pode ser desfeita.
+                  {isGrouped
+                    ? `"${description}" faz parte de uma compra parcelada. Deseja excluir só esta parcela ou todas as parcelas do grupo?`
+                    : `Tem certeza que deseja excluir "${description}"? Esta ação não pode ser desfeita.`}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                {isGrouped && (
+                  <AlertDialogAction
+                    onClick={() => handleDelete("group")}
+                    disabled={deleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Excluir todas
+                  </AlertDialogAction>
+                )}
                 <AlertDialogAction
-                  onClick={handleDelete}
+                  onClick={() => handleDelete("single")}
                   disabled={deleting}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  {deleting ? "Excluindo..." : "Excluir"}
+                  {deleting ? "Excluindo..." : isGrouped ? "Só esta parcela" : "Excluir"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

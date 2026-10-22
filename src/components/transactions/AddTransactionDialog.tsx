@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { formatLocalDate } from "@/lib/utils";
 import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
@@ -49,7 +50,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
   const [category, setCategory] = useState("");
   const [selectedCard, setSelectedCard] = useState("");
   const [selectedPerson, setSelectedPerson] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(formatLocalDate(new Date()));
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentCurrent, setInstallmentCurrent] = useState("1");
   const [installmentTotal, setInstallmentTotal] = useState("2");
