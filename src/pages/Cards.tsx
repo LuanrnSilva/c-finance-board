@@ -7,13 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, FileText, Loader2 } from "lucide-react";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { useContracts } from "@/hooks/useContracts";
+import { useTransactions } from "@/hooks/useTransactions";
+import { cardUsedAmount } from "@/lib/utils";
 
 export default function Cards() {
   const { cards, loading: cardsLoading, addCard, updateCard } = useCreditCards();
   const { contracts, loading: contractsLoading, addContract, updateContract } = useContracts();
+  const { transactions, loading: transactionsLoading } = useTransactions();
+  const now = new Date();
+  const usedFor = (cardId: string) => cardUsedAmount(transactions, cardId, now.getFullYear(), now.getMonth());
 
   const totalLimit = cards.reduce((sum, c) => sum + Number(c.credit_limit), 0);
-  const totalUsed = cards.reduce((sum, c) => sum + Number(c.used_amount), 0);
+  const totalUsed = cards.reduce((sum, c) => sum + usedFor(c.id), 0);
   const totalAvailable = totalLimit - totalUsed;
 
   const totalContractValue = contracts.reduce((sum, c) => sum + c.total_value, 0);
