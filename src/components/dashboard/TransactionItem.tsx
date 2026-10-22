@@ -18,6 +18,7 @@ import type { Transaction } from "@/types/transaction";
 import type { CreditCard as CreditCardType } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -46,6 +47,9 @@ export function TransactionItem({
   categories = [],
 }: TransactionItemProps) {
   const [deleting, setDeleting] = useState(false);
+  const { user, members } = useAuth();
+  const creator = members.length > 1 ? members.find((m) => m.user_id === transaction.created_by) : undefined;
+  const creatorName = creator ? (creator.user_id === user?.id ? "Você" : creator.full_name || "Membro") : undefined;
   const { id, description, category, amount, date, type, card_brand: cardBrand, person_name: personName } = transaction;
   const Icon = categoryIcons[category] || Tag;
   
@@ -91,6 +95,12 @@ export function TransactionItem({
           {personName && (
             <span className="flex items-center gap-1">
               • <User className="w-3 h-3" /> {personName}
+            </span>
+          )}
+          {creatorName && (
+            <span className="flex items-center gap-1" title={`Lançado por ${creatorName}`}>
+              • <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[10px] font-semibold flex items-center justify-center">{creatorName.slice(0, 1).toUpperCase()}</span>
+              {creatorName}
             </span>
           )}
           {transaction.installment_total && (

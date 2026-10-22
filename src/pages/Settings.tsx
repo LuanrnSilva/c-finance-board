@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { User, Bell, Shield, Palette, CreditCard } from "lucide-react";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { SharedAccountCard } from "@/components/settings/SharedAccountCard";
 
 export default function Settings() {
   const { settings, loading, setSetting } = useUserSettings({
@@ -56,6 +57,8 @@ export default function Settings() {
             <Button>Salvar Alterações</Button>
           </CardContent>
         </Card>
+
+        <SharedAccountCard />
 
         {/* Notifications */}
         <Card>
