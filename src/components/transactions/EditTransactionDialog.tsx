@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
-import type { Transaction } from "@/hooks/useTransactions";
+import type { Transaction } from "@/types/transaction";
 
 interface EditTransactionDialogProps {
   transaction: Transaction;

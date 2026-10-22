@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { EditTransactionDialog } from "@/components/transactions/EditTransactionDialog";
-import type { Transaction } from "@/hooks/useTransactions";
+import type { Transaction } from "@/types/transaction";
 import type { CreditCard as CreditCardType } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
