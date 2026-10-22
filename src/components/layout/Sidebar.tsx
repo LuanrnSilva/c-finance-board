@@ -7,21 +7,27 @@ import {
   Settings,
   LogOut,
   Wallet,
+  ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { usePendingReviewCount } from "@/hooks/usePendingReviewCount";
+import { CountBadge } from "@/components/transactions/StatusBadge";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: ArrowUpDown, label: "Transações", path: "/transactions" },
+  { icon: ClipboardCheck, label: "Validar", path: "/review" },
   { icon: CreditCard, label: "Cartões", path: "/cards" },
   { icon: PieChart, label: "Relatórios", path: "/reports" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
 export function Sidebar() {
-  const { signOut } = useAuth();
+  const { signOut, members } = useAuth();
+  const pending = usePendingReviewCount();
+  const items = members.length > 1 ? menuItems : menuItems.filter((i) => i.path !== "/review");
 
   const handleLogout = async () => {
     await signOut();
@@ -44,7 +50,7 @@ export function Sidebar() {
 
       <nav className="flex-1 p-4">
         <ul className="space-y-1">
-          {menuItems.map((item) => (
+          {items.map((item) => (
             <li key={item.path}>
               <NavLink
                 to={item.path}
@@ -57,7 +63,8 @@ export function Sidebar() {
                 }
               >
                 <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
+                <span className="flex-1">{item.label}</span>
+                {item.path === "/review" && <CountBadge count={pending} />}
               </NavLink>
             </li>
           ))}
