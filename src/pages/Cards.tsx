@@ -160,7 +160,7 @@ export default function Cards() {
                     name={card.name}
                     lastDigits={card.last_digits}
                     limit={Number(card.credit_limit)}
-                    used={Number(card.used_amount)}
+                    used={usedFor(card.id)}
                     onUpdateLimit={updateCard}
                   />
                 ))}
