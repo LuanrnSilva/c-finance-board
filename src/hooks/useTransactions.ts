@@ -16,6 +16,7 @@ function mapRow(t: any): Transaction {
     amount: Number(t.amount),
     type: t.type as "income" | "expense",
     person_name: t.people?.name,
+    created_by: t.user_id,
     card_brand: t.card_brand ?? undefined,
     credit_card_id: t.credit_card_id ?? undefined,
     person_id: t.person_id ?? undefined,
