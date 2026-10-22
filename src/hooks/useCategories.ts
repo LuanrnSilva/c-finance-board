@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,6 +61,7 @@ export function useCategories() {
         .from("categories")
         .insert({
           user_id: user.id,
+          household_id: householdId,
           name,
           value,
           icon,

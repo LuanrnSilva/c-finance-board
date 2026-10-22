@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +50,7 @@ export function usePeople() {
         .from("people")
         .insert({
           user_id: user.id,
+          household_id: householdId,
           name,
         })
         .select("id, name, created_at")

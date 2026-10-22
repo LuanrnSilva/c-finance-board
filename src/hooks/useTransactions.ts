@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { buildInstallments } from "@/lib/utils";
@@ -71,6 +72,7 @@ export function useTransactions() {
         const groupId = crypto.randomUUID();
         rows = buildInstallments(transaction.date, current, total).map((p) => ({
           user_id: user.id,
+          household_id: householdId,
           ...transaction,
           date: p.date,
           installment_current: p.installment_current,
@@ -80,6 +82,7 @@ export function useTransactions() {
       } else {
         rows = [{
           user_id: user.id,
+          household_id: householdId,
           ...transaction,
           installment_current: null,
           installment_total: null,

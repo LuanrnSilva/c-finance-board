@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -56,6 +57,7 @@ export function useCreditCards() {
         .from("credit_cards")
         .insert({
           user_id: user.id,
+          household_id: householdId,
           brand: card.brand,
           name: card.name,
           last_digits: card.last_digits,
