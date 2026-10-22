@@ -311,15 +311,19 @@ export type Database = {
           credit_card_id: string | null
           date: string
           description: string
+          dispute_note: string | null
           household_id: string
           id: string
           installment_current: number | null
           installment_group_id: string | null
           installment_total: number | null
           person_id: string | null
+          status: string
           type: string
           updated_at: string
           user_id: string
+          validated_at: string | null
+          validated_by: string | null
         }
         Insert: {
           amount: number
@@ -329,15 +333,19 @@ export type Database = {
           credit_card_id?: string | null
           date?: string
           description: string
+          dispute_note?: string | null
           household_id: string
           id?: string
           installment_current?: number | null
           installment_group_id?: string | null
           installment_total?: number | null
           person_id?: string | null
+          status?: string
           type: string
           updated_at?: string
           user_id: string
+          validated_at?: string | null
+          validated_by?: string | null
         }
         Update: {
           amount?: number
@@ -347,15 +355,19 @@ export type Database = {
           credit_card_id?: string | null
           date?: string
           description?: string
+          dispute_note?: string | null
           household_id?: string
           id?: string
           installment_current?: number | null
           installment_group_id?: string | null
           installment_total?: number | null
           person_id?: string | null
+          status?: string
           type?: string
           updated_at?: string
           user_id?: string
+          validated_at?: string | null
+          validated_by?: string | null
         }
         Relationships: [
           {
@@ -419,6 +431,10 @@ export type Database = {
       }
       current_household_id: { Args: never; Returns: string }
       ensure_household: { Args: never; Returns: string }
+      household_member_count: {
+        Args: { _household_id: string }
+        Returns: number
+      }
       is_household_member: { Args: { _household_id: string }; Returns: boolean }
       is_household_owner: { Args: { _household_id: string }; Returns: boolean }
       shares_household: { Args: { _other: string }; Returns: boolean }
