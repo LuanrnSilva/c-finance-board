@@ -2,6 +2,7 @@ import { countsTowardTotals } from "@/types/transaction";
 import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { GoalsSummary } from "@/components/dashboard/GoalsSummary";
+import { useRecurringExpenses } from "@/hooks/useRecurringExpenses";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
 import { TransactionItem } from "@/components/dashboard/TransactionItem";
@@ -50,6 +51,7 @@ export default function Dashboard() {
     });
   }, []);
 
+  const { monthlyEstimate: recurringMonthly, items: recurringItems } = useRecurringExpenses(transactions);
   const allMonthTransactions = transactions.filter((t) => isSameMonth(t.date, selYear, selMonth));
   const monthTransactions = allMonthTransactions.filter(countsTowardTotals);
   const disputedTotal = allMonthTransactions
@@ -124,6 +126,11 @@ export default function Dashboard() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Olá, {userName}!</h1>
             <p className="text-muted-foreground">Aqui está o resumo das suas finanças</p>
+            {recurringItems.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                Recorrentes: cerca de <span className="font-semibold text-foreground">{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(recurringMonthly)}</span>/mês ({recurringItems.length} gastos)
+              </p>
+            )}
             {disputedTotal > 0 && (
               <p className="text-sm text-warning">
                 {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(disputedTotal)} em lançamentos contestados fora dos totais
