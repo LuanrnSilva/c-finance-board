@@ -8,6 +8,13 @@
       "when": 1792668931517,
       "tag": "0000_installment_groups_user_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792669172575,
+      "tag": "0001_shared_households",
+      "breakpoints": true
     }
   ]
 }
