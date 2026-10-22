@@ -181,6 +181,7 @@ export type Database = {
           description: string
           id: string
           installment_current: number | null
+          installment_group_id: string | null
           installment_total: number | null
           person_id: string | null
           type: string
@@ -197,6 +198,7 @@ export type Database = {
           description: string
           id?: string
           installment_current?: number | null
+          installment_group_id?: string | null
           installment_total?: number | null
           person_id?: string | null
           type: string
@@ -213,6 +215,7 @@ export type Database = {
           description?: string
           id?: string
           installment_current?: number | null
+          installment_group_id?: string | null
           installment_total?: number | null
           person_id?: string | null
           type?: string
@@ -235,6 +238,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          user_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          user_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
       }
     }
     Views: {
