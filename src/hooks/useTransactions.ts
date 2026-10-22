@@ -17,6 +17,7 @@ function mapRow(t: any): Transaction {
     type: t.type as "income" | "expense",
     person_name: t.people?.name,
     created_by: t.user_id,
+    status: (t.status ?? "confirmed") as Transaction["status"],
     card_brand: t.card_brand ?? undefined,
     credit_card_id: t.credit_card_id ?? undefined,
     person_id: t.person_id ?? undefined,
@@ -122,6 +123,24 @@ export function useTransactions() {
     }
   };
 
+  const reviewTransaction = async (id: string, status: "confirmed" | "disputed", note?: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("transactions")
+        .update({ status, dispute_note: status === "disputed" ? note ?? null : null })
+        .eq("id", id)
+        .select(SELECT)
+        .single();
+      if (error) throw error;
+      setTransactions((prev) => prev.map((t) => (t.id === id ? mapRow(data) : t)));
+      window.dispatchEvent(new Event("transactions-reviewed"));
+      return { success: true };
+    } catch (error) {
+      showError("Erro ao validar transação", error);
+      return { success: false, error };
+    }
+  };
+
   const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
     try {
       const { data, error } = await supabase
@@ -162,6 +181,7 @@ export function useTransactions() {
     addTransaction,
     deleteTransaction,
     updateTransaction,
+    reviewTransaction,
     refetch: fetchTransactions,
   };
 }
