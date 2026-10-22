@@ -2,6 +2,7 @@ import { countsTowardTotals } from "@/types/transaction";
 import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { GoalsSummary } from "@/components/dashboard/GoalsSummary";
+import { BudgetProgress } from "@/components/dashboard/BudgetProgress";
 import { useRecurringExpenses } from "@/hooks/useRecurringExpenses";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
@@ -190,7 +191,10 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <GoalsSummary />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BudgetProgress transactions={transactions} categories={categories} year={selYear} month={selMonth} />
+          <GoalsSummary />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <MonthlyChart data={monthlyData} />
