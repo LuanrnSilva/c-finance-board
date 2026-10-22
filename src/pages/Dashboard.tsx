@@ -1,6 +1,7 @@
 import { countsTowardTotals } from "@/types/transaction";
 import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { GoalsSummary } from "@/components/dashboard/GoalsSummary";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CreditCardWidget } from "@/components/dashboard/CreditCardWidget";
 import { TransactionItem } from "@/components/dashboard/TransactionItem";
@@ -182,6 +183,8 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
+        <GoalsSummary />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <MonthlyChart data={monthlyData} />
           <ExpenseChart data={expenseData.length > 0 ? expenseData : [{ name: "Sem dados", value: 0, color: "hsl(var(--muted))" }]} />

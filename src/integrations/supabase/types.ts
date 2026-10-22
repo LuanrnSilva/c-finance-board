@@ -152,6 +152,95 @@ export type Database = {
           },
         ]
       }
+      goal_contributions: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          date: string
+          goal_id: string
+          household_id: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string
+          date?: string
+          goal_id: string
+          household_id: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          date?: string
+          goal_id?: string
+          household_id?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_contributions_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_contributions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          archived: boolean
+          created_at: string
+          created_by: string
+          deadline: string | null
+          household_id: string
+          id: string
+          name: string
+          target_amount: number
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          household_id: string
+          id?: string
+          name: string
+          target_amount: number
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          household_id?: string
+          id?: string
+          name?: string
+          target_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       household_invites: {
         Row: {
           accepted_at: string | null
