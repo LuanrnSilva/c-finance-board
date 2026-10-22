@@ -8,6 +8,7 @@ import {
   LogOut,
   Wallet,
   ClipboardCheck,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +21,7 @@ const menuItems = [
   { icon: ArrowUpDown, label: "Transações", path: "/transactions" },
   { icon: ClipboardCheck, label: "Validar", path: "/review" },
   { icon: CreditCard, label: "Cartões", path: "/cards" },
+  { icon: Target, label: "Metas", path: "/goals" },
   { icon: PieChart, label: "Relatórios", path: "/reports" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
