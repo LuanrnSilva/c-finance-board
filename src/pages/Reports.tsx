@@ -1,3 +1,4 @@
+import { countsTowardTotals } from "@/types/transaction";
 import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ExpenseChart } from "@/components/dashboard/ExpenseChart";
@@ -28,7 +29,9 @@ import { useCategories } from "@/hooks/useCategories";
 import { parseLocalDate, colorFromName } from "@/lib/utils";
 
 export default function Reports() {
-  const { transactions, loading: transactionsLoading } = useTransactions();
+  const { transactions: allTransactions, loading: transactionsLoading } = useTransactions();
+  const transactions = useMemo(() => allTransactions.filter(countsTowardTotals), [allTransactions]);
+  const disputedTotal = useMemo(() => allTransactions.filter((t) => t.status === "disputed").reduce((s, t) => s + t.amount, 0), [allTransactions]);
   const { cards, loading: cardsLoading } = useCreditCards();
   const { people, loading: peopleLoading } = usePeople();
   const { categories, loading: categoriesLoading } = useCategories();
@@ -150,6 +153,11 @@ export default function Reports() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
             <p className="text-muted-foreground">Análise detalhada das suas finanças</p>
+            {disputedTotal > 0 && (
+              <p className="text-sm text-warning">
+                {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(disputedTotal)} em lançamentos contestados (não incluídos nos totais)
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Select value={period} onValueChange={setPeriod}>

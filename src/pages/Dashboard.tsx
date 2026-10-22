@@ -1,3 +1,4 @@
+import { countsTowardTotals } from "@/types/transaction";
 import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
@@ -48,7 +49,11 @@ export default function Dashboard() {
     });
   }, []);
 
-  const monthTransactions = transactions.filter((t) => isSameMonth(t.date, selYear, selMonth));
+  const allMonthTransactions = transactions.filter((t) => isSameMonth(t.date, selYear, selMonth));
+  const monthTransactions = allMonthTransactions.filter(countsTowardTotals);
+  const disputedTotal = allMonthTransactions
+    .filter((t) => t.status === "disputed")
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const totalIncome = monthTransactions
     .filter((t) => t.type === "income")
@@ -118,6 +123,11 @@ export default function Dashboard() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Olá, {userName}!</h1>
             <p className="text-muted-foreground">Aqui está o resumo das suas finanças</p>
+            {disputedTotal > 0 && (
+              <p className="text-sm text-warning">
+                {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(disputedTotal)} em lançamentos contestados fora dos totais
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>

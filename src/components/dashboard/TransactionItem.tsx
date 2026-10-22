@@ -19,6 +19,7 @@ import type { CreditCard as CreditCardType } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
 import { useAuth } from "@/contexts/AuthContext";
+import { StatusBadge } from "@/components/transactions/StatusBadge";
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -103,12 +104,18 @@ export function TransactionItem({
               {creatorName}
             </span>
           )}
+          {members.length > 1 && <StatusBadge status={transaction.status} />}
           {transaction.installment_total && (
             <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">
               {transaction.installment_current}/{transaction.installment_total}x
             </span>
           )}
         </div>
+        {transaction.status === "disputed" && transaction.dispute_note && (
+          <p className="text-sm text-destructive mt-1">
+            Contestado{transaction.created_by === user?.id ? " — edite para enviar de novo" : ""}: {transaction.dispute_note}
+          </p>
+        )}
       </div>
       
       <p className={cn(

@@ -4,3 +4,4 @@
 - The Transaction type lives only in src/types/transaction.ts.
 - Shared data (transactions, credit_cards, categories, contracts, people) is scoped by household_id with RLS via public.is_household_member; user_id means "created by" — lets household members share everything.
 - Get the current household with getHouseholdId() from src/lib/household (calls ensure_household RPC); one household per user — keeps inserts valid even after a member is removed.
+- Expense validation status (pending/confirmed/disputed) is enforced by DB triggers on transactions; totals use countsTowardTotals from src/types/transaction (disputed excluded) — creators cannot validate their own entries.

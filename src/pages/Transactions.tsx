@@ -27,6 +27,7 @@ export default function Transactions() {
   const { categories, customCategories, addCategory, deleteCategory } = useCategories();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredTransactions = transactions.filter((t) => {
     const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase());
@@ -34,7 +35,8 @@ export default function Transactions() {
       filter === "all" ||
       (filter === "income" && t.type === "income") ||
       (filter === "expense" && t.type === "expense");
-    return matchesSearch && matchesFilter;
+    const matchesStatus = statusFilter === "all" || (t.status ?? "confirmed") === statusFilter;
+    return matchesSearch && matchesFilter && matchesStatus;
   });
 
   const handleAddTransaction = async (transaction: Omit<NewTransaction, "card_brand"> & { card?: string }) => {
@@ -83,6 +85,17 @@ export default function Transactions() {
                   <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="income">Receitas</SelectItem>
                   <SelectItem value="expense">Despesas</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  <SelectItem value="pending">Pendentes</SelectItem>
+                  <SelectItem value="confirmed">Confirmados</SelectItem>
+                  <SelectItem value="disputed">Contestados</SelectItem>
                 </SelectContent>
               </Select>
             </div>
