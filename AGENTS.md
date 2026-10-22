@@ -2,3 +2,5 @@
 - Parse "YYYY-MM-DD" dates with parseLocalDate from src/lib/utils — new Date(str) shifts the month in UTC-3.
 - Installment purchases are stored as one row per installment linked by installment_group_id — enables per-month totals and group deletion.
 - The Transaction type lives only in src/types/transaction.ts.
+- Shared data (transactions, credit_cards, categories, contracts, people) is scoped by household_id with RLS via public.is_household_member; user_id means "created by" — lets household members share everything.
+- Get the current household with getHouseholdId() from src/lib/household (calls ensure_household RPC); one household per user — keeps inserts valid even after a member is removed.

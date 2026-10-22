@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,7 +28,6 @@ export function useContracts() {
     const { data, error } = await supabase
       .from("contracts")
       .select("*")
-      .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -67,6 +67,7 @@ export function useContracts() {
       .from("contracts")
       .insert({
         user_id: userData.user.id,
+        household_id: await getHouseholdId(),
         name: contract.name,
         type: contract.type,
         total_value: contract.total_value,

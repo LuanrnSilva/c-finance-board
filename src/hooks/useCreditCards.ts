@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,11 +52,13 @@ export function useCreditCards() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
+      const householdId = await getHouseholdId();
 
       const { data, error } = await supabase
         .from("credit_cards")
         .insert({
           user_id: user.id,
+          household_id: householdId,
           brand: card.brand,
           name: card.name,
           last_digits: card.last_digits,

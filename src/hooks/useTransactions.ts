@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { buildInstallments } from "@/lib/utils";
@@ -15,6 +16,7 @@ function mapRow(t: any): Transaction {
     amount: Number(t.amount),
     type: t.type as "income" | "expense",
     person_name: t.people?.name,
+    created_by: t.user_id,
     card_brand: t.card_brand ?? undefined,
     credit_card_id: t.credit_card_id ?? undefined,
     person_id: t.person_id ?? undefined,
@@ -63,6 +65,7 @@ export function useTransactions() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
+      const householdId = await getHouseholdId();
 
       const total = transaction.installment_total ?? 0;
       let rows;
@@ -71,6 +74,7 @@ export function useTransactions() {
         const groupId = crypto.randomUUID();
         rows = buildInstallments(transaction.date, current, total).map((p) => ({
           user_id: user.id,
+          household_id: householdId,
           ...transaction,
           date: p.date,
           installment_current: p.installment_current,
@@ -80,6 +84,7 @@ export function useTransactions() {
       } else {
         rows = [{
           user_id: user.id,
+          household_id: householdId,
           ...transaction,
           installment_current: null,
           installment_total: null,

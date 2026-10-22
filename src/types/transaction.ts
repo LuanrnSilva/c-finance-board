@@ -9,6 +9,7 @@ export interface Transaction {
   credit_card_id?: string;
   person_id?: string;
   person_name?: string;
+  created_by?: string;
   installment_current?: number;
   installment_total?: number;
   installment_group_id?: string;
