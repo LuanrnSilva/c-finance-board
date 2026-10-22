@@ -1,4 +1,6 @@
 import { countsTowardTotals } from "@/types/transaction";
+import { useRecurringExpenses } from "@/hooks/useRecurringExpenses";
+import { RecurringExpensesCard } from "@/components/reports/RecurringExpensesCard";
 import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ExpenseChart } from "@/components/dashboard/ExpenseChart";
@@ -36,6 +38,7 @@ export default function Reports() {
   const { people, loading: peopleLoading } = usePeople();
   const { categories, loading: categoriesLoading } = useCategories();
   const [period, setPeriod] = useState("3");
+  const recurring = useRecurringExpenses(allTransactions);
 
   const loading = transactionsLoading || cardsLoading || peopleLoading || categoriesLoading;
 
@@ -254,6 +257,8 @@ export default function Reports() {
                 </CardContent>
               </Card>
             )}
+
+            <RecurringExpensesCard items={recurring.items} categories={categories} setStatus={recurring.setStatus} />
 
             {/* Person Expenses Chart */}
             {personExpenses.length > 0 && (

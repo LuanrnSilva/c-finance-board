@@ -391,6 +391,44 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_overrides: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          household_id: string
+          id: string
+          normalized_description: string
+          status: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string
+          household_id: string
+          id?: string
+          normalized_description: string
+          status: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          household_id?: string
+          id?: string
+          normalized_description?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_overrides_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
