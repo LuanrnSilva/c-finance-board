@@ -1,0 +1,4 @@
+- Card used amount is computed from expense transactions (credit_card_id, current month); credit_cards.used_amount is deprecated — keeps a single source of truth.
+- Parse "YYYY-MM-DD" dates with parseLocalDate from src/lib/utils — new Date(str) shifts the month in UTC-3.
+- Installment purchases are stored as one row per installment linked by installment_group_id — enables per-month totals and group deletion.
+- The Transaction type lives only in src/types/transaction.ts.

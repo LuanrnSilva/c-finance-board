@@ -8,7 +8,6 @@ export interface CreditCard {
   name: string;
   last_digits: string;
   credit_limit: number;
-  used_amount: number;
 }
 
 export function useCreditCards() {
@@ -48,7 +47,6 @@ export function useCreditCards() {
     name: string;
     last_digits: string;
     credit_limit: number;
-    used_amount?: number;
   }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -58,8 +56,10 @@ export function useCreditCards() {
         .from("credit_cards")
         .insert({
           user_id: user.id,
-          ...card,
-          used_amount: card.used_amount || 0,
+          brand: card.brand,
+          name: card.name,
+          last_digits: card.last_digits,
+          credit_limit: card.credit_limit,
         })
         .select()
         .single();

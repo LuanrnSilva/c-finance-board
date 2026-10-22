@@ -6,8 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { User, Bell, Shield, Palette, CreditCard } from "lucide-react";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export default function Settings() {
+  const { settings, loading, setSetting } = useUserSettings({
+    notify_due_alerts: true,
+    notify_weekly_summary: true,
+    notify_limit_alerts: true,
+  });
+
   return (
     <AppLayout>
       <div className="p-4 lg:p-8 space-y-6 max-w-4xl">
@@ -65,7 +72,7 @@ export default function Settings() {
                 <Label>Alertas de vencimento</Label>
                 <p className="text-sm text-muted-foreground">Receba lembretes antes do vencimento</p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={settings.notify_due_alerts} disabled={loading} onCheckedChange={(v) => setSetting("notify_due_alerts", v)} />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -73,7 +80,7 @@ export default function Settings() {
                 <Label>Resumo semanal</Label>
                 <p className="text-sm text-muted-foreground">Receba um resumo das suas finanças</p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={settings.notify_weekly_summary} disabled={loading} onCheckedChange={(v) => setSetting("notify_weekly_summary", v)} />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -81,7 +88,7 @@ export default function Settings() {
                 <Label>Alertas de limite</Label>
                 <p className="text-sm text-muted-foreground">Aviso quando atingir 80% do limite</p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={settings.notify_limit_alerts} disabled={loading} onCheckedChange={(v) => setSetting("notify_limit_alerts", v)} />
             </div>
           </CardContent>
         </Card>

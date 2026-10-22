@@ -18,6 +18,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { usePeople } from "@/hooks/usePeople";
 import { useCategories } from "@/hooks/useCategories";
+import type { NewTransaction } from "@/types/transaction";
 
 export default function Transactions() {
   const { transactions, loading, addTransaction, deleteTransaction, updateTransaction } = useTransactions();
@@ -36,26 +37,9 @@ export default function Transactions() {
     return matchesSearch && matchesFilter;
   });
 
-  const handleAddTransaction = async (transaction: {
-    description: string;
-    amount: number;
-    type: "income" | "expense";
-    category: string;
-    card?: string;
-    credit_card_id?: string;
-    person_id?: string;
-    date: string;
-  }) => {
-    await addTransaction({
-      description: transaction.description,
-      amount: transaction.amount,
-      type: transaction.type,
-      category: transaction.category,
-      card_brand: transaction.card,
-      credit_card_id: transaction.credit_card_id,
-      person_id: transaction.person_id,
-      date: transaction.date,
-    });
+  const handleAddTransaction = async (transaction: Omit<NewTransaction, "card_brand"> & { card?: string }) => {
+    const { card, ...rest } = transaction;
+    await addTransaction({ ...rest, card_brand: card });
   };
 
   return (
