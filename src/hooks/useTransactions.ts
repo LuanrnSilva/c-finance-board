@@ -64,6 +64,7 @@ export function useTransactions() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
+      const householdId = await getHouseholdId();
 
       const total = transaction.installment_total ?? 0;
       let rows;

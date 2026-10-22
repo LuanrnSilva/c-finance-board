@@ -45,6 +45,7 @@ export function usePeople() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
+      const householdId = await getHouseholdId();
 
       const { data, error } = await supabase
         .from("people")
