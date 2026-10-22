@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      budgets: {
+        Row: {
+          category: string
+          created_at: string
+          household_id: string
+          id: string
+          monthly_limit: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          household_id: string
+          id?: string
+          monthly_limit: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          household_id?: string
+          id?: string
+          monthly_limit?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string | null
