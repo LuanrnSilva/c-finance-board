@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { User, Bell, Shield, Palette, CreditCard } from "lucide-react";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { SharedAccountCard } from "@/components/settings/SharedAccountCard";
+import { BudgetsCard } from "@/components/settings/BudgetsCard";
 
 export default function Settings() {
   const { settings, loading, setSetting } = useUserSettings({
@@ -59,6 +60,8 @@ export default function Settings() {
         </Card>
 
         <SharedAccountCard />
+
+        <BudgetsCard />
 
         {/* Notifications */}
         <Card>

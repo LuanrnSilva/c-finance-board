@@ -1,6 +1,9 @@
 import { countsTowardTotals } from "@/types/transaction";
 import { useRecurringExpenses } from "@/hooks/useRecurringExpenses";
 import { RecurringExpensesCard } from "@/components/reports/RecurringExpensesCard";
+import { MemberSpendingChart, BalanceEvolutionChart, TopExpensesCard, MonthProjectionCard } from "@/components/reports/AdvancedCharts";
+import { spendingByMember, cumulativeBalance, topExpenses, monthProjection } from "@/lib/reports";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ExpenseChart } from "@/components/dashboard/ExpenseChart";
@@ -53,9 +56,19 @@ export default function Reports() {
     const months = parseInt(period);
     const now = new Date();
     const cutoff = new Date(now.getFullYear(), now.getMonth() - months + 1, 1);
-    
-    return transactions.filter(t => parseLocalDate(t.date) >= cutoff);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return transactions.filter(t => { const d = parseLocalDate(t.date); return d >= cutoff && d <= end; });
   }, [transactions, period]);
+
+  const { user, members } = useAuth();
+  const memberList = useMemo(
+    () => members.map((m) => ({ user_id: m.user_id, name: m.user_id === user?.id ? "Você" : m.full_name || "Membro" })),
+    [members, user?.id]
+  );
+  const memberData = useMemo(() => spendingByMember(periodTransactions, memberList, parseInt(period)), [periodTransactions, memberList, period]);
+  const balanceData = useMemo(() => cumulativeBalance(transactions, parseInt(period)), [transactions, period]);
+  const top10 = useMemo(() => topExpenses(periodTransactions), [periodTransactions]);
+  const projection = useMemo(() => monthProjection(transactions), [transactions]);
 
   const summary = useMemo(() => {
     const income = periodTransactions
@@ -257,6 +270,11 @@ export default function Reports() {
                 </CardContent>
               </Card>
             )}
+
+            <MonthProjectionCard {...projection} />
+            <BalanceEvolutionChart data={balanceData} />
+            <MemberSpendingChart data={memberData} names={memberList.map((m) => m.name)} />
+            <TopExpensesCard items={top10} categoryName={(v) => categories.find((c) => c.value === v)?.name || v} />
 
             <RecurringExpensesCard items={recurring.items} categories={categories} setStatus={recurring.setStatus} />
 
