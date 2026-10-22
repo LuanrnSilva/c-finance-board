@@ -24,32 +24,17 @@ import {
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCreditCards } from "@/hooks/useCreditCards";
 import { usePeople } from "@/hooks/usePeople";
-
-const categoryLabels: Record<string, string> = {
-  shopping: "Compras",
-  food: "Alimentação",
-  transport: "Transporte",
-  home: "Casa",
-  tech: "Tecnologia",
-  other: "Outros",
-};
-
-const categoryColors: Record<string, string> = {
-  shopping: "hsl(38, 92%, 50%)",
-  food: "hsl(262, 83%, 58%)",
-  transport: "hsl(142, 76%, 36%)",
-  home: "hsl(0, 84%, 60%)",
-  tech: "hsl(200, 95%, 45%)",
-  other: "hsl(280, 65%, 60%)",
-};
+import { useCategories } from "@/hooks/useCategories";
+import { parseLocalDate, colorFromName } from "@/lib/utils";
 
 export default function Reports() {
   const { transactions, loading: transactionsLoading } = useTransactions();
   const { cards, loading: cardsLoading } = useCreditCards();
   const { people, loading: peopleLoading } = usePeople();
+  const { categories, loading: categoriesLoading } = useCategories();
   const [period, setPeriod] = useState("3");
 
-  const loading = transactionsLoading || cardsLoading || peopleLoading;
+  const loading = transactionsLoading || cardsLoading || peopleLoading || categoriesLoading;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -63,7 +48,7 @@ export default function Reports() {
     const now = new Date();
     const cutoff = new Date(now.getFullYear(), now.getMonth() - months + 1, 1);
     
-    return transactions.filter(t => new Date(t.date) >= cutoff);
+    return transactions.filter(t => parseLocalDate(t.date) >= cutoff);
   }, [transactions, period]);
 
   const summary = useMemo(() => {
@@ -88,12 +73,11 @@ export default function Reports() {
         byCategory[t.category] = (byCategory[t.category] || 0) + t.amount;
       });
 
-    return Object.entries(byCategory).map(([category, value]) => ({
-      name: categoryLabels[category] || category,
-      value,
-      color: categoryColors[category] || "hsl(200, 95%, 45%)",
-    }));
-  }, [periodTransactions]);
+    return Object.entries(byCategory).map(([category, value]) => {
+      const name = categories.find(c => c.value === category)?.name || category;
+      return { name, value, color: colorFromName(name) };
+    });
+  }, [periodTransactions, categories]);
 
   const monthlyData = useMemo(() => {
     const months = parseInt(period);
@@ -107,7 +91,7 @@ export default function Reports() {
       const month = date.getMonth();
 
       const monthTransactions = transactions.filter(t => {
-        const tDate = new Date(t.date);
+        const tDate = parseLocalDate(t.date);
         return tDate.getFullYear() === year && tDate.getMonth() === month;
       });
 
