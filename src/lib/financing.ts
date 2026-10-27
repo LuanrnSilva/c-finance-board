@@ -30,7 +30,7 @@ export function generateSchedule(input: FinancingInput, actual: Observation[] = 
     const number = (options?.startNumber ?? 1)+k;
     const observation = actual.find(r=>r.number===number);
     const interest = money(balance*f.monthly_rate);
-    const theoreticalAmort = f.system==='price' ? payment-interest : money(amort);
+    const theoreticalAmort = f.system==='price' ? payment-interest : money(money(amort*(k+1))-money(amort*k));
     let a = observation ? money(observation.payment-f.fixed_fee-interest) : theoreticalAmort;
     if(a<=0 && k<f.n_installments-1) throw new Error('A parcela não cobre juros e tarifa. Confira os valores.');
     if(!observation && k===f.n_installments-1) a=balance;
