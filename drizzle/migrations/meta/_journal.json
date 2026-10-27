@@ -43,6 +43,13 @@
       "when": 1792670470692,
       "tag": "0005_budgets",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793128016901,
+      "tag": "0006_financing_module",
+      "breakpoints": true
     }
   ]
 }

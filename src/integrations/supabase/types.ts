@@ -184,6 +184,188 @@ export type Database = {
           },
         ]
       }
+      financing_installments: {
+        Row: {
+          amortization: number
+          balance_after: number
+          due_date: string
+          fee: number
+          financing_id: string
+          household_id: string
+          id: string
+          interest: number
+          is_actual: boolean
+          number: number
+          paid_amount: number | null
+          paid_at: string | null
+          payment: number
+          status: string
+        }
+        Insert: {
+          amortization: number
+          balance_after: number
+          due_date: string
+          fee?: number
+          financing_id: string
+          household_id: string
+          id?: string
+          interest: number
+          is_actual?: boolean
+          number: number
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment: number
+          status?: string
+        }
+        Update: {
+          amortization?: number
+          balance_after?: number
+          due_date?: string
+          fee?: number
+          financing_id?: string
+          household_id?: string
+          id?: string
+          interest?: number
+          is_actual?: boolean
+          number?: number
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financing_installments_financing_id_fkey"
+            columns: ["financing_id"]
+            isOneToOne: false
+            referencedRelation: "financings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financing_installments_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financing_prepayments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          date: string
+          financing_id: string
+          household_id: string
+          id: string
+          installments_removed: number
+          interest_saved: number
+          mode: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string
+          date: string
+          financing_id: string
+          household_id: string
+          id?: string
+          installments_removed: number
+          interest_saved: number
+          mode: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          date?: string
+          financing_id?: string
+          household_id?: string
+          id?: string
+          installments_removed?: number
+          interest_saved?: number
+          mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financing_prepayments_financing_id_fkey"
+            columns: ["financing_id"]
+            isOneToOne: false
+            referencedRelation: "financings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financing_prepayments_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financings: {
+        Row: {
+          bank: string
+          created_at: string
+          created_by: string
+          first_due_date: string
+          fixed_fee: number
+          household_id: string
+          id: string
+          indexed: boolean
+          monthly_rate: number
+          n_installments: number
+          name: string
+          principal: number
+          rate_confidence: number | null
+          rate_source: string
+          system: string
+        }
+        Insert: {
+          bank: string
+          created_at?: string
+          created_by?: string
+          first_due_date: string
+          fixed_fee?: number
+          household_id: string
+          id?: string
+          indexed?: boolean
+          monthly_rate: number
+          n_installments: number
+          name: string
+          principal: number
+          rate_confidence?: number | null
+          rate_source: string
+          system: string
+        }
+        Update: {
+          bank?: string
+          created_at?: string
+          created_by?: string
+          first_due_date?: string
+          fixed_fee?: number
+          household_id?: string
+          id?: string
+          indexed?: boolean
+          monthly_rate?: number
+          n_installments?: number
+          name?: string
+          principal?: number
+          rate_confidence?: number | null
+          rate_source?: string
+          system?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financings_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_contributions: {
         Row: {
           amount: number
@@ -471,6 +653,7 @@ export type Database = {
           date: string
           description: string
           dispute_note: string | null
+          financing_installment_id: string | null
           household_id: string
           id: string
           installment_current: number | null
@@ -493,6 +676,7 @@ export type Database = {
           date?: string
           description: string
           dispute_note?: string | null
+          financing_installment_id?: string | null
           household_id: string
           id?: string
           installment_current?: number | null
@@ -515,6 +699,7 @@ export type Database = {
           date?: string
           description?: string
           dispute_note?: string | null
+          financing_installment_id?: string | null
           household_id?: string
           id?: string
           installment_current?: number | null
@@ -534,6 +719,13 @@ export type Database = {
             columns: ["credit_card_id"]
             isOneToOne: false
             referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_financing_installment_id_fkey"
+            columns: ["financing_installment_id"]
+            isOneToOne: false
+            referencedRelation: "financing_installments"
             referencedColumns: ["id"]
           },
           {
@@ -588,6 +780,22 @@ export type Database = {
         Args: { _migrate_data?: boolean; _token: string }
         Returns: string
       }
+      apply_financing_prepayment: {
+        Args: {
+          _amount: number
+          _date: string
+          _expected: Json
+          _id: string
+          _interest_saved: number
+          _mode: string
+          _schedule: Json
+        }
+        Returns: undefined
+      }
+      create_financing: {
+        Args: { _input: Json; _schedule: Json }
+        Returns: string
+      }
       current_household_id: { Args: never; Returns: string }
       ensure_household: { Args: never; Returns: string }
       household_member_count: {
@@ -596,6 +804,16 @@ export type Database = {
       }
       is_household_member: { Args: { _household_id: string }; Returns: boolean }
       is_household_owner: { Args: { _household_id: string }; Returns: boolean }
+      pay_financing_installment: {
+        Args: {
+          _amount: number
+          _category?: string
+          _date: string
+          _id: string
+          _prepaid?: boolean
+        }
+        Returns: undefined
+      }
       shares_household: { Args: { _other: string }; Returns: boolean }
     }
     Enums: {
