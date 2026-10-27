@@ -1,0 +1,21 @@
+import {describe,it,expect} from 'vitest';
+import {generateSchedule,inferRate,simulatePrepayment,financingSchema,lastInstallmentPrepayment,annualRate,type FinancingInput} from './financing';
+const f:FinancingInput={name:'Teste',bank:'Santander',principal:10000,n_installments:12,monthly_rate:.02,fixed_fee:0,first_due_date:'2026-01-31',system:'price',rate_source:'informed',rate_confidence:null,indexed:false};
+describe('Financiamentos',()=>{
+ it('Price: parcela 945.60, amortizações 10000, saldo zero',()=>{const rows=generateSchedule(f);expect(rows[0].payment).toBe(945.60);expect(Math.round(rows.reduce((s,r)=>s+r.amortization,0)*100)/100).toBe(10000);expect(rows.at(-1)?.balance_after).toBe(0);});
+ it('SAC: primeiras parcelas e inferência de 2%',()=>{const rows=generateSchedule({...f,system:'sac'});expect(rows[0].payment).toBe(1033.33);expect(rows[1].payment).toBe(1016.67);expect(inferRate({n:12,first:[1033.33,1016.67,1000]}).monthlyRate).toBeCloseTo(.02,4);});
+ it('Price infere 2%',()=>expect(inferRate({n:12,principal:10000,first:[945.60,945.60,945.60]}).monthlyRate).toBeCloseTo(.02,5));
+ it('Price sem principal é indeterminado',()=>expect(()=>inferRate({n:12,first:[945.60,945.60]})).toThrow(/indeterminada/));
+ it('Amortização reduz juros e termina em zero',()=>{const s=simulatePrepayment(f,generateSchedule(f),{amount:2000,date:'2026-01-01',mode:'reduce_term'});expect(s.interestAfter).toBeLessThan(s.interestBefore);expect(s.openSchedule.at(-1)?.balance_after).toBe(0);expect(s.remaining).toBeLessThan(12);});
+ it('Amortização não altera parcelas pagas',()=>{const rows=generateSchedule(f);rows[0]={...rows[0],status:'paid',paid_amount:945.6,paid_at:'2026-01-31'};const s=simulatePrepayment(f,rows,{amount:2000,date:'2026-02-01',mode:'reduce_installment'});expect(s.schedule[0]).toEqual(rows[0]);expect(s.remaining).toBe(11);});
+ it('Banco obrigatório',()=>expect(financingSchema.safeParse({...f,bank:''}).success).toBe(false));
+ it('Data deve existir',()=>expect(financingSchema.safeParse({...f,first_due_date:'2026-02-31'}).success).toBe(false));
+ it('Datas mensais mantêm dia original limitado ao fim do mês',()=>{const rows=generateSchedule(f);expect(rows[1].due_date).toBe('2026-02-28');expect(rows[2].due_date).toBe('2026-03-31');});
+ it('Taxa anual é efetiva composta',()=>expect(annualRate(.02)).toBeCloseTo(.26824179456,9));
+ it('Quitação integral não deixa parcelas abertas',()=>expect(simulatePrepayment(f,generateSchedule(f),{amount:10000,date:'2026-01-01',mode:'reduce_term'}).remaining).toBe(0));
+ it('Zero juros e parcela única',()=>{expect(generateSchedule({...f,monthly_rate:0,n_installments:1})[0].payment).toBe(10000);});
+ it('Tarifa não amortiza principal',()=>{const rows=generateSchedule({...f,fixed_fee:25});expect(rows[0].payment).toBe(970.60);expect(rows[0].amortization).toBe(745.60);});
+ it.each(['price','sac'] as const)('Antecipação final remove uma parcela: %s',system=>{const x={...f,system};const rows=generateSchedule(x);const amount=lastInstallmentPrepayment(x,rows);const s=simulatePrepayment(x,rows,{amount,date:'2026-01-01',mode:'reduce_term'});expect(s.installmentsRemoved).toBe(1);expect(s.openSchedule.at(-1)?.balance_after).toBe(0);});
+ it('Irregular exige as três últimas',()=>expect(()=>inferRate({n:12,principal:10000,first:[1200,1100,1150]})).toThrow(/três últimas/));
+ it('Valores reais são preservados',()=>{const rows=generateSchedule(f,[{number:1,payment:946}]);expect(rows[0].payment).toBe(946);expect(rows[0].is_actual).toBe(true);});
+});
