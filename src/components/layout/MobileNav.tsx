@@ -7,6 +7,7 @@ import {
   LogOut,
   ClipboardCheck,
   Target,
+  Landmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +20,7 @@ const menuItems = [
   { icon: ClipboardCheck, label: "Validar", path: "/review" },
   { icon: CreditCard, label: "Cartões", path: "/cards" },
   { icon: Target, label: "Metas", path: "/goals" },
+  { icon: Landmark, label: "Dívidas", path: "/debts" },
   { icon: PieChart, label: "Relatórios", path: "/reports" },
 ];
 
@@ -36,7 +38,7 @@ export function MobileNav() {
               to={item.path}
               className={({ isActive }) =>
                 cn(
-                  "relative flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all duration-200",
+                  "relative flex flex-col items-center gap-1 px-1 py-2 rounded-lg transition-all duration-200",
                   "text-muted-foreground",
                   isActive && "text-primary"
                 )
