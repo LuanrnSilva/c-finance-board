@@ -33,7 +33,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Evolução Mensal</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 sm:px-6">
         <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={data}>
             <defs>
