@@ -8,3 +8,5 @@
 - Goals use TanStack Query (useGoals); progress/monthly-needed math lives in src/lib/goals — one place for the formula.
 - Recurring-expense detection is client-side in src/lib/recurring (detectRecurring); user confirm/ignore choices persist in recurring_overrides keyed by normalized description + category.
 - Report/budget calculations (budget levels, member spend, cumulative balance, top expenses, month projection) live in src/lib/reports and exclude disputed entries via countsTowardTotals.
+
+- Mobile navigation keeps primary destinations visible and secondary destinations in a menu; shared dialogs constrain height with dynamic viewport units and safe-area insets so forms remain reachable on phones.

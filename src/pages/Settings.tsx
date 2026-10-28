@@ -36,7 +36,7 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="w-16 h-16 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-2xl font-bold text-primary">JS</span>
               </div>
               <div>
@@ -73,7 +73,7 @@ export default function Settings() {
             <CardDescription>Configure seus alertas</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <Label>Alertas de vencimento</Label>
                 <p className="text-sm text-muted-foreground">Receba lembretes antes do vencimento</p>
@@ -81,7 +81,7 @@ export default function Settings() {
               <Switch checked={settings.notify_due_alerts} disabled={loading} onCheckedChange={(v) => setSetting("notify_due_alerts", v)} />
             </div>
             <Separator />
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <Label>Resumo semanal</Label>
                 <p className="text-sm text-muted-foreground">Receba um resumo das suas finanças</p>
@@ -89,7 +89,7 @@ export default function Settings() {
               <Switch checked={settings.notify_weekly_summary} disabled={loading} onCheckedChange={(v) => setSetting("notify_weekly_summary", v)} />
             </div>
             <Separator />
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <Label>Alertas de limite</Label>
                 <p className="text-sm text-muted-foreground">Aviso quando atingir 80% do limite</p>
@@ -109,7 +109,7 @@ export default function Settings() {
             <CardDescription>Personalize a interface</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <Label>Modo escuro</Label>
                 <p className="text-sm text-muted-foreground">Alternar tema escuro/claro</p>
@@ -131,7 +131,7 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <Button variant="outline">Alterar Senha</Button>
             <Separator />
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <Label>Autenticação em dois fatores</Label>
                 <p className="text-sm text-muted-foreground">Adicione uma camada extra de segurança</p>
