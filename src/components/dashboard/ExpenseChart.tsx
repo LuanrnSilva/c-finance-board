@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ExpenseData {
@@ -24,8 +24,8 @@ export function ExpenseChart({ data }: ExpenseChartProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Despesas por Categoria</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
+      <CardContent className="px-3 sm:px-6">
+        <ResponsiveContainer width="100%" height={210}>
           <PieChart>
             <Pie
               data={data}
@@ -48,15 +48,16 @@ export function ExpenseChart({ data }: ExpenseChartProps) {
                 borderRadius: "8px",
               }}
             />
-            <Legend
-              verticalAlign="bottom"
-              height={36}
-              formatter={(value) => (
-                <span className="text-sm text-muted-foreground">{value}</span>
-              )}
-            />
           </PieChart>
         </ResponsiveContainer>
+        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          {data.map((entry, index) => (
+            <li key={`${entry.name}-${index}`} className="flex items-center gap-2 min-w-0">
+              <svg width="10" height="10" className="shrink-0" aria-hidden="true"><circle cx="5" cy="5" r="5" fill={entry.color} /></svg>
+              <span className="break-words">{entry.name}</span>
+            </li>
+          ))}
+        </ul>
       </CardContent>
     </Card>
   );

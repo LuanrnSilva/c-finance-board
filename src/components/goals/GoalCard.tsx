@@ -26,7 +26,7 @@ export function GoalCard({ goal, actions }: { goal: Goal; actions: ReturnType<ty
 
   return (
     <Card className={cn(goal.archived && "opacity-70")}>
-      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
         <div>
           <CardTitle className="text-lg">{goal.name}</CardTitle>
           {goal.deadline && (
@@ -66,8 +66,8 @@ export function GoalCard({ goal, actions }: { goal: Goal; actions: ReturnType<ty
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-end justify-between">
-          <p className="text-2xl font-bold">{brl(goal.saved)} <span className="text-sm font-normal text-muted-foreground">de {brl(goal.target_amount)}</span></p>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <p className="text-2xl font-bold break-words">{brl(goal.saved)} <span className="text-sm font-normal text-muted-foreground">de {brl(goal.target_amount)}</span></p>
           <span className="text-sm font-semibold text-primary">{pct.toFixed(0)}%</span>
         </div>
         <Progress value={pct} />
@@ -76,7 +76,7 @@ export function GoalCard({ goal, actions }: { goal: Goal; actions: ReturnType<ty
             Valor mensal necessário: <span className="font-semibold text-foreground">{brl(monthly)}</span>
           </p>
         )}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           {!goal.archived && <ContributionDialog goal={goal} onSubmit={(i) => actions.addContribution.mutateAsync(i)} />}
           <Button variant="ghost" size="sm" onClick={() => setShowHistory((s) => !s)} className="ml-auto">
             Histórico ({goal.contributions.length}) {showHistory ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}

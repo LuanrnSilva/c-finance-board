@@ -77,9 +77,9 @@ export function TransactionItem({
   };
 
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-secondary/50 transition-colors group">
+    <div className="grid grid-cols-[2.5rem_minmax(0,1fr)] sm:flex items-center gap-3 p-3 sm:p-4 rounded-xl hover:bg-secondary/50 transition-colors group">
       <div className={cn(
-        "w-12 h-12 rounded-xl flex items-center justify-center",
+        "w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl flex items-center justify-center",
         type === "income" ? "bg-success/10" : "bg-destructive/10"
       )}>
         <Icon className={cn(
@@ -112,20 +112,20 @@ export function TransactionItem({
           )}
         </div>
         {transaction.status === "disputed" && transaction.dispute_note && (
-          <p className="text-sm text-destructive mt-1">
+          <p className="text-sm text-destructive mt-1 break-words">
             Contestado{transaction.created_by === user?.id ? " — edite para enviar de novo" : ""}: {transaction.dispute_note}
           </p>
         )}
       </div>
       
       <p className={cn(
-        "font-semibold whitespace-nowrap",
+        "col-start-2 font-semibold break-words sm:whitespace-nowrap",
         type === "income" ? "text-success" : "text-destructive"
       )}>
         {type === "income" ? "+" : "-"}{formatCurrency(amount)}
       </p>
 
-      <div className="flex items-center gap-1">
+      <div className="col-start-2 flex items-center gap-1 sm:shrink-0">
         {onUpdate && (
           <EditTransactionDialog
             transaction={transaction}
@@ -142,7 +142,8 @@ export function TransactionItem({
               <Button
                 variant="ghost"
                 size="icon"
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                aria-label={`Excluir ${description}`}
+                className="sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

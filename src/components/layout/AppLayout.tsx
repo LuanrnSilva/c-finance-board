@@ -9,7 +9,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="lg:ml-64 pb-20 lg:pb-0">
+      <main className="app-main min-w-0 lg:ml-64 lg:pb-0">
         {children}
       </main>
       <MobileNav />
