@@ -9,6 +9,7 @@ import {
   Wallet,
   ClipboardCheck,
   Target,
+  Landmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +23,7 @@ const menuItems = [
   { icon: ClipboardCheck, label: "Validar", path: "/review" },
   { icon: CreditCard, label: "Cartões", path: "/cards" },
   { icon: Target, label: "Metas", path: "/goals" },
+  { icon: Landmark, label: "Dívidas", path: "/debts" },
   { icon: PieChart, label: "Relatórios", path: "/reports" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
