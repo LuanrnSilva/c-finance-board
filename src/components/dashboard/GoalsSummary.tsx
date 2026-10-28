@@ -29,9 +29,9 @@ export function GoalsSummary() {
           <p className="text-sm text-muted-foreground">Nenhuma meta ainda. <Link to="/goals" className="text-primary underline">Criar meta</Link></p>
         ) : top.map((g) => (
           <div key={g.id} className="space-y-1">
-            <div className="flex justify-between text-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
               <span className="font-medium truncate">{g.name}</span>
-              <span className="text-muted-foreground whitespace-nowrap">{brl(g.saved)} / {brl(g.target_amount)} • {g.pct.toFixed(0)}%</span>
+              <span className="text-muted-foreground break-words">{brl(g.saved)} / {brl(g.target_amount)} • {g.pct.toFixed(0)}%</span>
             </div>
             <Progress value={g.pct} />
           </div>

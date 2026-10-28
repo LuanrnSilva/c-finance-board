@@ -123,9 +123,9 @@ export default function Dashboard() {
     <AppLayout>
       <div className="p-4 lg:p-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Olá, {userName}!</h1>
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-foreground break-words">Olá, {userName}!</h1>
             <p className="text-muted-foreground">Aqui está o resumo das suas finanças</p>
             {recurringItems.length > 0 && (
               <p className="text-sm text-muted-foreground">
@@ -138,9 +138,9 @@ export default function Dashboard() {
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Mês" />
               </SelectTrigger>
               <SelectContent>
@@ -203,7 +203,7 @@ export default function Dashboard() {
 
         {/* Recent Transactions */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row flex-wrap gap-2 items-center justify-between pb-2">
             <CardTitle className="text-lg">Transações Recentes</CardTitle>
             <Link to="/transactions">
               <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
@@ -212,7 +212,7 @@ export default function Dashboard() {
               </Button>
             </Link>
           </CardHeader>
-          <CardContent className="space-y-1">
+          <CardContent className="space-y-1 px-3 sm:px-6">
             {isLoading ? (
               <div className="space-y-2">
                 {[1, 2, 3].map((i) => (
