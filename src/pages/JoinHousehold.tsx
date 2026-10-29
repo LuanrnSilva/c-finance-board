@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function JoinHousehold() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const { refreshHousehold } = useAuth();
+  const { user, refreshHousehold } = useAuth();
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [needsMigration, setNeedsMigration] = useState(false);
@@ -18,9 +18,9 @@ export default function JoinHousehold() {
   const accept = async (migrate: boolean) => {
     if (!token) return;
     setBusy(true);
-    const { error } = await supabase.rpc("accept_household_invite", { _token: token, _migrate_data: migrate });
-    setBusy(false);
+    const { data, error } = await supabase.rpc("accept_household_invite", { _token: token, _migrate_data: migrate });
     if (error) {
+      setBusy(false);
       if (error.message.includes("HAS_DATA")) {
         setNeedsMigration(true);
         return;
@@ -28,10 +28,15 @@ export default function JoinHousehold() {
       toast({ title: "Não foi possível aceitar o convite", description: error.message, variant: "destructive" });
       return;
     }
+    if (!data) {
+      setBusy(false);
+      toast({ title: "Não foi possível confirmar a entrada", variant: "destructive" });
+      return;
+    }
     await refreshHousehold();
     toast({ title: "Pronto!", description: "Agora vocês compartilham a mesma conta." });
-    navigate("/");
-    window.location.reload();
+    setBusy(false);
+    navigate("/settings", { replace: true });
   };
 
   return (
@@ -49,6 +54,7 @@ export default function JoinHousehold() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex gap-2 flex-wrap">
+          <p className="w-full text-sm text-muted-foreground break-all">Entrou como {user?.email}</p>
           {needsMigration ? (
             <>
               <Button onClick={() => accept(true)} disabled={busy}>Levar meus dados e entrar</Button>
