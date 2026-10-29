@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +21,7 @@ const defaultCategories: Category[] = [
 ];
 
 export function useCategories() {
+  const { householdId } = useAuth();
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -107,7 +109,10 @@ export function useCategories() {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+    const reload = () => { void fetchCategories(); };
+    window.addEventListener("focus", reload);
+    return () => window.removeEventListener("focus", reload);
+  }, [householdId]);
 
   const allCategories = [...defaultCategories, ...customCategories];
 

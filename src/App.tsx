@@ -16,11 +16,13 @@ import JoinHousehold from "./pages/JoinHousehold";
 import Review from "./pages/Review";
 import Goals from "./pages/Goals";
 import Debts from "./pages/Debts";
+import { ThemeProvider } from "next-themes";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="financeflow-theme">
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -42,6 +44,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

@@ -11,13 +11,13 @@ export type RecurringStatus = "confirmed" | "ignored";
 export type RecurringItem = RecurringGroup & { status: RecurringStatus | null };
 
 export function useRecurringExpenses(transactions: Transaction[]) {
-  const { user } = useAuth();
+  const { user, householdId } = useAuth();
   const qc = useQueryClient();
   const { toast } = useToast();
 
   const overridesQuery = useQuery({
-    queryKey: ["recurring_overrides", user?.id],
-    enabled: !!user,
+    queryKey: ["recurring_overrides", user?.id, householdId],
+    enabled: !!user && !!householdId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("recurring_overrides")
@@ -39,9 +39,10 @@ export function useRecurringExpenses(transactions: Transaction[]) {
 
   const setStatus = useMutation({
     mutationFn: async ({ item, status }: { item: RecurringGroup; status: RecurringStatus }) => {
+      if (!user) throw new Error("Usuário não autenticado");
       const household_id = await getHouseholdId();
       const { error } = await supabase.from("recurring_overrides").upsert(
-        { household_id, normalized_description: item.normalized, category: item.category, status, created_by: user!.id },
+        { household_id, normalized_description: item.normalized, category: item.category, status, created_by: user.id },
         { onConflict: "household_id,normalized_description,category" }
       );
       if (error) throw error;

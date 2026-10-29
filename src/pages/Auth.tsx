@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { safeReturnPath } from "@/lib/authRedirect";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,8 @@ const authSchema = z.object({
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnPath = safeReturnPath(searchParams.get("next"));
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +45,7 @@ export default function Auth() {
       }
     } else {
       toast.success("Login realizado com sucesso!");
-      navigate("/");
+      navigate(returnPath);
     }
     setLoading(false);
   };
@@ -57,9 +60,9 @@ export default function Auth() {
     }
 
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/auth?next=${encodeURIComponent(returnPath)}`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -77,7 +80,8 @@ export default function Auth() {
         toast.error(error.message);
       }
     } else {
-      toast.success("Conta criada com sucesso! Faça login para continuar.");
+      if (data.session) navigate(returnPath);
+      else toast.success("Confira seu e-mail para confirmar o cadastro. Depois, entre para continuar.");
     }
     setLoading(false);
   };

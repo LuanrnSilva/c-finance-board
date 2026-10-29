@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ export interface CreditCard {
 }
 
 export function useCreditCards() {
+  const { householdId } = useAuth();
   const [cards, setCards] = useState<CreditCard[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -127,7 +129,10 @@ export function useCreditCards() {
 
   useEffect(() => {
     fetchCards();
-  }, []);
+    const reload = () => { void fetchCards(); };
+    window.addEventListener("focus", reload);
+    return () => window.removeEventListener("focus", reload);
+  }, [householdId]);
 
   return {
     cards,

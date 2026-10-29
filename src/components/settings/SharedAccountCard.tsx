@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, Copy, Trash2, UserMinus } from "lucide-react";
+import { Users, Copy, Trash2, UserMinus, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,11 +41,21 @@ export function SharedAccountCard() {
     setInvites(data ?? []);
   };
 
-  useEffect(() => { loadInvites(); }, [householdId, isOwner]);
+  useEffect(() => {
+    void loadInvites();
+    const refresh = () => { void loadInvites(); };
+    window.addEventListener("focus", refresh);
+    const interval = window.setInterval(refresh, 15000);
+    return () => { clearInterval(interval); window.removeEventListener("focus", refresh); };
+  }, [householdId, isOwner]);
 
   const copy = async (token: string) => {
-    await navigator.clipboard.writeText(linkFor(token));
-    toast({ title: "Link copiado", description: "Envie para a pessoa convidada." });
+    try {
+      await navigator.clipboard.writeText(linkFor(token));
+      toast({ title: "Link copiado", description: "Envie para a pessoa convidada." });
+    } catch {
+      toast({ title: "Não foi possível copiar", description: linkFor(token), variant: "destructive" });
+    }
   };
 
   const invite = async () => {
@@ -70,10 +80,11 @@ export function SharedAccountCard() {
   };
 
   const removeMember = async (userId: string) => {
+    if (!householdId) return;
     const { error } = await supabase
       .from("household_members")
       .delete()
-      .eq("household_id", householdId!)
+      .eq("household_id", householdId)
       .eq("user_id", userId);
     if (error) return showError("Erro ao remover membro", error);
     await refreshHousehold();
@@ -85,6 +96,7 @@ export function SharedAccountCard() {
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-primary" />
           <CardTitle className="text-lg">Conta compartilhada</CardTitle>
+          <Button variant="ghost" size="icon" className="ml-auto" aria-label="Atualizar grupo" onClick={async () => { await refreshHousehold(); await loadInvites(); }}><RefreshCw className="w-4 h-4" /></Button>
         </div>
         <CardDescription>Quem tem acesso aos mesmos lançamentos, cartões e contratos</CardDescription>
       </CardHeader>
@@ -116,18 +128,18 @@ export function SharedAccountCard() {
           <>
             <Separator />
             <div className="space-y-2">
-              <Label htmlFor="invite-email">Convidar por e-mail</Label>
-              <div className="flex gap-2">
+              <Label htmlFor="invite-email">E-mail da pessoa convidada</Label>
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input id="invite-email" type="email" placeholder="pessoa@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                 <Button onClick={invite} disabled={busy || !email.trim()}>Gerar link</Button>
               </div>
-              <p className="text-xs text-muted-foreground">O link vale por 7 dias e só funciona para esse e-mail.</p>
+              <p className="text-xs text-muted-foreground">Envio automático por e-mail não configurado. Compartilhe o link; ele vale por 7 dias para esse e-mail.</p>
             </div>
             {invites.length > 0 && (
               <div className="space-y-2">
                 {invites.map((i) => (
                   <div key={i.id} className="flex items-center justify-between gap-2 text-sm">
-                    <span className="truncate">{i.email}</span>
+                    <div className="min-w-0"><p className="truncate">{i.email}</p><p className="text-xs text-muted-foreground">{new Date(i.expires_at) <= new Date() ? "Expirado" : "Aguardando aceite"}</p></div>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => copy(i.token)} aria-label="Copiar link"><Copy className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => cancelInvite(i.id)} aria-label="Cancelar convite"><Trash2 className="w-4 h-4" /></Button>

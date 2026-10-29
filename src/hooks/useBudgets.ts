@@ -11,13 +11,13 @@ export interface Budget {
 }
 
 export function useBudgets() {
-  const { user } = useAuth();
+  const { user, householdId } = useAuth();
   const qc = useQueryClient();
   const { toast } = useToast();
 
   const query = useQuery({
-    queryKey: ["budgets", user?.id],
-    enabled: !!user,
+    queryKey: ["budgets", user?.id, householdId],
+    enabled: !!user && !!householdId,
     queryFn: async (): Promise<Budget[]> => {
       const { data, error } = await supabase.from("budgets").select("id, category, monthly_limit");
       if (error) throw error;
