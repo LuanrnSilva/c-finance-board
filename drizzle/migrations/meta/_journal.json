@@ -50,6 +50,13 @@
       "when": 1793128016901,
       "tag": "0006_financing_module",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793282153954,
+      "tag": "0007_repair_household_invite_acceptance",
+      "breakpoints": true
     }
   ]
 }
