@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ export interface Contract {
 }
 
 export function useContracts() {
+  const { householdId } = useAuth();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -145,7 +147,10 @@ export function useContracts() {
 
   useEffect(() => {
     fetchContracts();
-  }, []);
+    const reload = () => { void fetchContracts(); };
+    window.addEventListener("focus", reload);
+    return () => window.removeEventListener("focus", reload);
+  }, [householdId]);
 
   return {
     contracts,

@@ -39,14 +39,14 @@ export interface ContributionInput {
 }
 
 export function useGoals() {
-  const { user } = useAuth();
+  const { user, householdId } = useAuth();
   const qc = useQueryClient();
   const { toast } = useToast();
-  const key = ["goals", user?.id];
+  const key = ["goals", user?.id, householdId];
 
   const query = useQuery({
     queryKey: key,
-    enabled: !!user,
+    enabled: !!user && !!householdId,
     queryFn: async (): Promise<Goal[]> => {
       const { data, error } = await supabase
         .from("goals")
@@ -77,8 +77,9 @@ export function useGoals() {
 
   const createGoal = useMutation({
     mutationFn: async (input: GoalInput) => {
+      if (!user) throw new Error("Usuário não autenticado");
       const household_id = await getHouseholdId();
-      const { error } = await supabase.from("goals").insert({ ...input, household_id, created_by: user!.id });
+      const { error } = await supabase.from("goals").insert({ ...input, household_id, created_by: user.id });
       if (error) throw error;
     },
     onSuccess: invalidate,
@@ -105,10 +106,11 @@ export function useGoals() {
 
   const addContribution = useMutation({
     mutationFn: async (input: ContributionInput) => {
+      if (!user) throw new Error("Usuário não autenticado");
       const household_id = await getHouseholdId();
       const { error } = await supabase
         .from("goal_contributions")
-        .insert({ ...input, note: input.note || null, household_id, created_by: user!.id });
+        .insert({ ...input, note: input.note || null, household_id, created_by: user.id });
       if (error) throw error;
     },
     onSuccess: invalidate,

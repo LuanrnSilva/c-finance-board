@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,7 @@ function mapRow(t: any): Transaction {
 const byDateDesc = (a: Transaction, b: Transaction) => b.date.localeCompare(a.date);
 
 export function useTransactions() {
+  const { householdId } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -172,8 +174,11 @@ export function useTransactions() {
 
   useEffect(() => {
     fetchTransactions();
+    const reload = () => { void fetchTransactions(); };
+    window.addEventListener("focus", reload);
+    return () => window.removeEventListener("focus", reload);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [householdId]);
 
   return {
     transactions,

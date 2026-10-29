@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { getHouseholdId } from "@/lib/household";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ export interface Person {
 }
 
 export function usePeople() {
+  const { householdId } = useAuth();
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -117,7 +119,10 @@ export function usePeople() {
 
   useEffect(() => {
     fetchPeople();
-  }, []);
+    const reload = () => { void fetchPeople(); };
+    window.addEventListener("focus", reload);
+    return () => window.removeEventListener("focus", reload);
+  }, [householdId]);
 
   return {
     people,
