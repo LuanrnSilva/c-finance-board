@@ -18,3 +18,8 @@
 - [ ] Concluir verificação em duas etapas — serviço recusou cadastro de fator na sessão de teste; precisa de sessão normal do usuário.
 - [ ] Validar troca efetiva de senha e confirmação de novo e-mail — requer ação do titular, sem alterar suas credenciais durante testes.
 - [ ] Enviar convites por e-mail — depende de configurar um domínio de envio do usuário.
+
+# Sugestões de despesas e formulário
+- [ ] Adicionar sugestão de valor, categoria e cartão por Lovable AI, sem salvar automaticamente.
+- [ ] Ajustar teclados de valor/data e alvos de toque nos formulários de transações.
+- [ ] Validar sugestão real autenticada, testes e uso nos dois celulares.
