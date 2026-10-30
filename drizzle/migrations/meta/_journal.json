@@ -57,6 +57,13 @@
       "when": 1793282153954,
       "tag": "0007_repair_household_invite_acceptance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793361015874,
+      "tag": "0008_fix_single_household_membership_transition",
+      "breakpoints": true
     }
   ]
 }

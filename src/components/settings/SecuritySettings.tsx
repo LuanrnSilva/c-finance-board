@@ -39,8 +39,9 @@ export function SecuritySettings() {
     setBusy(true);
     const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `FinanceFlow ${Date.now()}` });
     setBusy(false);
-    if (error) { fail(error); return; }
+    if (error) { fail(error); return false; }
     setEnrollment({ id: data.id, qr: data.totp.qr_code }); setCode("");
+    return true;
   };
   const verify = async () => {
     const id = enrollment?.id ?? factor;
@@ -61,7 +62,7 @@ export function SecuritySettings() {
     <CardContent className="space-y-4">
       <Button variant="outline" onClick={() => setPasswordOpen(true)}>Alterar senha</Button>
       <div className="flex flex-wrap justify-between items-center gap-3"><div><p className="font-medium">Verificação em duas etapas</p><p className="text-sm text-muted-foreground">{factor ? "Ativada" : "Desativada"}</p></div>
-        <Button variant="outline" disabled={busy} onClick={async () => { if (!factor) await beginEnrollment(); setMfaOpen(true); }}>{factor ? "Desativar" : "Ativar"}</Button>
+        <Button variant="outline" disabled={busy} onClick={async () => { if (!factor && !await beginEnrollment()) return; setMfaOpen(true); }}>{factor ? "Desativar" : "Ativar"}</Button>
       </div>
     </CardContent>
     <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}><DialogContent><DialogHeader><DialogTitle>Alterar senha</DialogTitle></DialogHeader><form onSubmit={changePassword} className="space-y-4">
