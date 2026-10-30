@@ -10,3 +10,6 @@
 - Report/budget calculations (budget levels, member spend, cumulative balance, top expenses, month projection) live in src/lib/reports and exclude disputed entries via countsTowardTotals.
 
 - Mobile navigation keeps primary destinations visible and secondary destinations in a menu; shared dialogs constrain height with dynamic viewport units and safe-area insets so forms remain reachable on phones.
+- Invite acceptance is an atomic email-bound RPC that transfers all shared data and marks acceptance; authentication preserves same-origin return paths so login cannot lose an invitation.
+- Shared queries depend on household identity and refresh on return to the app; membership and pending invites refresh periodically so both members see completed acceptance.
+- Settings use the authenticated profile, auth email-change confirmation, persisted user preferences and a class-based theme provider; TOTP accounts must complete the assurance-level challenge before protected screens.

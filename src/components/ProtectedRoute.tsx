@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { MfaChallenge } from "@/components/settings/MfaChallenge";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -22,5 +23,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to={`/auth?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   }
 
-  return <>{children}</>;
+  return <MfaChallenge>{children}</MfaChallenge>;
 }
