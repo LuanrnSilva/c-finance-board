@@ -23,6 +23,7 @@ import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
 import type { Transaction } from "@/types/transaction";
+import { parseTransactionAmount } from "@/lib/expenseSuggestion";
 
 interface EditTransactionDialogProps {
   transaction: Transaction;
@@ -71,7 +72,7 @@ export function EditTransactionDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!description || !amount || !category) {
+    if (!description.trim() || !amount || !category || !Number.isFinite(parseTransactionAmount(amount)) || parseTransactionAmount(amount) <= 0) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -85,7 +86,7 @@ export function EditTransactionDialog({
     setLoading(true);
     const result = await onUpdate(transaction.id, {
       description,
-      amount: parseFloat(amount),
+      amount: parseTransactionAmount(amount),
       type,
       category,
       card_brand: card?.brand,
@@ -112,7 +113,8 @@ export function EditTransactionDialog({
         <Button
           variant="ghost"
           size="icon"
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+          aria-label="Editar transação"
+          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
         >
           <Pencil className="w-4 h-4" />
         </Button>
@@ -121,7 +123,7 @@ export function EditTransactionDialog({
         <DialogHeader>
           <DialogTitle>Editar Transação</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="transaction-form space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-2">
             <Button
               type="button"
@@ -155,8 +157,8 @@ export function EditTransactionDialog({
             <Label htmlFor="edit-amount">Valor</Label>
             <Input
               id="edit-amount"
-              type="number"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0,00"
@@ -182,12 +184,12 @@ export function EditTransactionDialog({
           {type === "expense" && cards.length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="edit-card">Cartão (opcional)</Label>
-              <Select value={selectedCard} onValueChange={setSelectedCard}>
+              <Select value={selectedCard || "none"} onValueChange={value => setSelectedCard(value === "none" ? "" : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um cartão" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {cards.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.brand.charAt(0).toUpperCase() + c.brand.slice(1)} •••• {c.last_digits}
@@ -215,6 +217,7 @@ export function EditTransactionDialog({
                     <Input
                       id="edit-installment-current"
                       type="number"
+                      inputMode="numeric"
                       min="1"
                       value={installmentCurrent}
                       onChange={(e) => setInstallmentCurrent(e.target.value)}
@@ -225,6 +228,7 @@ export function EditTransactionDialog({
                     <Input
                       id="edit-installment-total"
                       type="number"
+                      inputMode="numeric"
                       min="2"
                       value={installmentTotal}
                       onChange={(e) => setInstallmentTotal(e.target.value)}
@@ -238,12 +242,12 @@ export function EditTransactionDialog({
           {people.length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="edit-person">Pessoa (opcional)</Label>
-              <Select value={selectedPerson} onValueChange={setSelectedPerson}>
+              <Select value={selectedPerson || "none"} onValueChange={value => setSelectedPerson(value === "none" ? "" : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma pessoa" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {people.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.name}
@@ -259,6 +263,7 @@ export function EditTransactionDialog({
             <Input
               id="edit-date"
               type="date"
+              inputMode="numeric"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />

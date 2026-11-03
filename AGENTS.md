@@ -13,3 +13,5 @@
 - Invite acceptance is an atomic email-bound RPC that transfers all shared data and marks acceptance; authentication preserves same-origin return paths so login cannot lose an invitation.
 - Shared queries depend on household identity and refresh on return to the app; membership and pending invites refresh periodically so both members see completed acceptance.
 - Settings use the authenticated profile, auth email-change confirmation, persisted user preferences and a class-based theme provider; TOTP accounts must complete the assurance-level challenge before protected screens.
+- Expense suggestions call Lovable AI only through an authenticated Edge Function with server-held prompts and credentials; category/card choices come from RLS-visible data and suggestions never save transactions automatically.
+- Transaction amount inputs accept decimal commas through the shared parser; mobile forms use native date controls and explicit input modes to preserve valid dates and accessible touch targets.
