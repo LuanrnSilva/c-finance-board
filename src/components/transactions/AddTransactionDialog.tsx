@@ -23,6 +23,8 @@ import { formatLocalDate } from "@/lib/utils";
 import type { CreditCard } from "@/hooks/useCreditCards";
 import type { Person } from "@/hooks/usePeople";
 import type { Category } from "@/hooks/useCategories";
+import { ExpenseSuggestionInput } from "./ExpenseSuggestionInput";
+import { parseTransactionAmount } from "@/lib/expenseSuggestion";
 
 interface AddTransactionDialogProps {
   onAdd: (transaction: {
@@ -59,7 +61,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!description || !amount || !category) {
+    if (!description.trim() || !amount || !category || !Number.isFinite(parseTransactionAmount(amount)) || parseTransactionAmount(amount) <= 0) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -72,7 +74,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
 
     onAdd({
       description,
-      amount: parseFloat(amount),
+      amount: parseTransactionAmount(amount),
       type,
       category,
       card: card?.brand,
@@ -111,7 +113,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
         <DialogHeader>
           <DialogTitle>Adicionar Transação</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="transaction-form space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-2">
             <Button
               type="button"
@@ -131,6 +133,13 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
             </Button>
           </div>
 
+          {type === "expense" && open && <ExpenseSuggestionInput cards={cards} categories={categories} onSuggestion={(suggestion, text) => {
+            setDescription(text);
+            if (suggestion.amount !== null) setAmount(String(suggestion.amount));
+            if (suggestion.category !== null) setCategory(suggestion.category);
+            setSelectedCard(suggestion.credit_card_id ?? "");
+          }} />}
+
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Input
@@ -145,8 +154,8 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
             <Label htmlFor="amount">Valor</Label>
             <Input
               id="amount"
-              type="number"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0,00"
@@ -204,6 +213,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
                     <Input
                       id="installment-current"
                       type="number"
+                      inputMode="numeric"
                       min="1"
                       value={installmentCurrent}
                       onChange={(e) => setInstallmentCurrent(e.target.value)}
@@ -214,6 +224,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
                     <Input
                       id="installment-total"
                       type="number"
+                      inputMode="numeric"
                       min="2"
                       value={installmentTotal}
                       onChange={(e) => setInstallmentTotal(e.target.value)}
@@ -247,6 +258,7 @@ export function AddTransactionDialog({ onAdd, cards = [], people = [], categorie
             <Input
               id="date"
               type="date"
+              inputMode="numeric"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
