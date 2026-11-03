@@ -643,6 +643,82 @@ export type Database = {
           },
         ]
       }
+      recurring_schedules: {
+        Row: {
+          amount: number
+          billing_day: number
+          category: string
+          created_at: string
+          created_by: string
+          credit_card_id: string | null
+          description: string
+          end_date: string | null
+          household_id: string
+          id: string
+          next_date: string
+          person_id: string | null
+          start_date: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          billing_day: number
+          category: string
+          created_at?: string
+          created_by: string
+          credit_card_id?: string | null
+          description: string
+          end_date?: string | null
+          household_id: string
+          id?: string
+          next_date: string
+          person_id?: string | null
+          start_date: string
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billing_day?: number
+          category?: string
+          created_at?: string
+          created_by?: string
+          credit_card_id?: string | null
+          description?: string
+          end_date?: string | null
+          household_id?: string
+          id?: string
+          next_date?: string
+          person_id?: string | null
+          start_date?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_schedules_credit_card_id_fkey"
+            columns: ["credit_card_id"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_schedules_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_schedules_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -660,6 +736,7 @@ export type Database = {
           installment_group_id: string | null
           installment_total: number | null
           person_id: string | null
+          recurring_schedule_id: string | null
           status: string
           type: string
           updated_at: string
@@ -683,6 +760,7 @@ export type Database = {
           installment_group_id?: string | null
           installment_total?: number | null
           person_id?: string | null
+          recurring_schedule_id?: string | null
           status?: string
           type: string
           updated_at?: string
@@ -706,6 +784,7 @@ export type Database = {
           installment_group_id?: string | null
           installment_total?: number | null
           person_id?: string | null
+          recurring_schedule_id?: string | null
           status?: string
           type?: string
           updated_at?: string
@@ -740,6 +819,13 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_recurring_schedule_id_fkey"
+            columns: ["recurring_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_schedules"
             referencedColumns: ["id"]
           },
         ]
@@ -798,12 +884,20 @@ export type Database = {
       }
       current_household_id: { Args: never; Returns: string }
       ensure_household: { Args: never; Returns: string }
+      generate_recurring_expenses: {
+        Args: { _household?: string }
+        Returns: number
+      }
       household_member_count: {
         Args: { _household_id: string }
         Returns: number
       }
       is_household_member: { Args: { _household_id: string }; Returns: boolean }
       is_household_owner: { Args: { _household_id: string }; Returns: boolean }
+      manage_recurring_schedule: {
+        Args: { _action: string; _id?: string; _input?: Json }
+        Returns: string
+      }
       pay_financing_installment: {
         Args: {
           _amount: number
@@ -813,6 +907,10 @@ export type Database = {
           _prepaid?: boolean
         }
         Returns: undefined
+      }
+      recurring_month_date: {
+        Args: { _day: number; _month: string }
+        Returns: string
       }
       shares_household: { Args: { _other: string }; Returns: boolean }
     }
