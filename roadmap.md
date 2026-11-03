@@ -20,6 +20,7 @@
 - [ ] Enviar convites por e-mail — depende de configurar um domínio de envio do usuário.
 
 # Sugestões de despesas e formulário
-- [ ] Adicionar sugestão de valor, categoria e cartão por Lovable AI, sem salvar automaticamente.
-- [ ] Ajustar teclados de valor/data e alvos de toque nos formulários de transações.
-- [ ] Validar sugestão real autenticada, testes e uso nos dois celulares.
+- [x] Adicionar sugestão de valor, categoria e cartão por Lovable AI, sem salvar automaticamente.
+- [x] Ajustar teclados de valor/data e alvos de toque nos formulários de transações.
+- [x] Executar testes de sugestão, valores com vírgula e regressões — 23 testes passaram; compilação sem erros.
+- [ ] Validar sugestão real autenticada e uso nos dois celulares — precisa que o usuário entre na prévia; sessão indisponível e emissão automática não encontrou sua conta.
