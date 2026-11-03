@@ -19,6 +19,8 @@ import { useCreditCards } from "@/hooks/useCreditCards";
 import { usePeople } from "@/hooks/usePeople";
 import { useCategories } from "@/hooks/useCategories";
 import type { NewTransaction } from "@/types/transaction";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { RecurringSchedulesPanel } from "@/components/transactions/RecurringSchedulesPanel";
 
 export default function Transactions() {
   const { transactions, loading, addTransaction, deleteTransaction, updateTransaction } = useTransactions();
@@ -64,6 +66,13 @@ export default function Transactions() {
           </div>
         </div>
 
+        <Tabs defaultValue="transactions" className="space-y-5">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="transactions" className="flex-1">Lançamentos</TabsTrigger>
+            <TabsTrigger value="scheduled" className="flex-1">Despesas mensais</TabsTrigger>
+          </TabsList>
+          <TabsContent value="scheduled"><RecurringSchedulesPanel categories={categories} cards={cards} people={people} /></TabsContent>
+          <TabsContent value="transactions">
         <Card>
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -124,6 +133,8 @@ export default function Transactions() {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );

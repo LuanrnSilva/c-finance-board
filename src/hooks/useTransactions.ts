@@ -51,6 +51,9 @@ export function useTransactions() {
         setTransactions([]);
         return;
       }
+      const hid = await getHouseholdId();
+      const { error: generationError } = await supabase.rpc("generate_recurring_expenses", { _household: hid });
+      if (generationError) throw generationError;
       const { data, error } = await supabase
         .from("transactions")
         .select(SELECT)
@@ -176,7 +179,11 @@ export function useTransactions() {
     fetchTransactions();
     const reload = () => { void fetchTransactions(); };
     window.addEventListener("focus", reload);
-    return () => window.removeEventListener("focus", reload);
+    window.addEventListener("transactions-reviewed", reload);
+    return () => {
+      window.removeEventListener("focus", reload);
+      window.removeEventListener("transactions-reviewed", reload);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [householdId]);
 
