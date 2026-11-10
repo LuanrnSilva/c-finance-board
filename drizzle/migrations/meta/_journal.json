@@ -71,6 +71,13 @@
       "when": 1793706286032,
       "tag": "0009_scheduled_monthly_expenses",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794316784319,
+      "tag": "0010_imported_expenses",
+      "breakpoints": true
     }
   ]
 }
