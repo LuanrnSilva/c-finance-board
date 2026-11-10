@@ -184,6 +184,104 @@ export type Database = {
           },
         ]
       }
+      expense_occurrences: {
+        Row: {
+          expense_id: string
+          household_id: string
+          id: string
+          month: string
+          paid: boolean
+        }
+        Insert: {
+          expense_id: string
+          household_id: string
+          id?: string
+          month: string
+          paid?: boolean
+        }
+        Update: {
+          expense_id?: string
+          household_id?: string
+          id?: string
+          month?: string
+          paid?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_occurrences_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_occurrences_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          description: string
+          due_day: number | null
+          end_month: string | null
+          household_id: string
+          id: string
+          installment_current: number | null
+          installment_total: number | null
+          responsible: string | null
+          source: string | null
+          start_month: string | null
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string
+          description: string
+          due_day?: number | null
+          end_month?: string | null
+          household_id?: string
+          id?: string
+          installment_current?: number | null
+          installment_total?: number | null
+          responsible?: string | null
+          source?: string | null
+          start_month?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_day?: number | null
+          end_month?: string | null
+          household_id?: string
+          id?: string
+          installment_current?: number | null
+          installment_total?: number | null
+          responsible?: string | null
+          source?: string | null
+          start_month?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financing_installments: {
         Row: {
           amortization: number
