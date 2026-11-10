@@ -26,6 +26,7 @@
 - [ ] Validar sugestão real autenticada e uso nos dois celulares — precisa que o usuário entre na prévia; sessão indisponível e emissão automática não encontrou sua conta.
 
 # Despesas mensais programadas
-- [ ] Criar agendamentos compartilhados e geração mensal sem duplicações.
-- [ ] Adicionar cadastro, edição, pausa, encerramento e próximas cobranças em Transações.
-- [ ] Testar datas mensais e validar cadastro e lançamentos na conta autenticada.
+- [x] Criar agendamentos compartilhados e geração mensal sem duplicações.
+- [x] Adicionar cadastro, edição, pausa, encerramento e próximas cobranças em Transações.
+- [x] Testar datas mensais e regressões — 30 testes passaram; armazenamento e execução diária confirmados.
+- [ ] Validar cadastro e lançamentos reais nos dois celulares — sessão recebida vazia e renovação não encontrou a conta; requer entrar na prévia.
