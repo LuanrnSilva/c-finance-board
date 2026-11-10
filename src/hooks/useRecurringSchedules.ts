@@ -24,6 +24,8 @@ export function useRecurringSchedules() {
     enabled: !!householdId,
     queryFn: async () => {
       if (!householdId) return [];
+      const { error: generationError } = await supabase.rpc("generate_recurring_expenses", { _household: householdId });
+      if (generationError) throw generationError;
       const { data, error } = await supabase.from("recurring_schedules").select("*").eq("household_id", householdId).order("next_date");
       if (error) throw error;
       return data;
