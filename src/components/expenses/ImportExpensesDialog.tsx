@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -72,7 +72,7 @@ export function ImportExpensesDialog({ onImported }: { onImported?: () => void }
                 </tr></thead>
                 <tbody>{rows.map((r, i) => {
                   const errs = rowErrors(r), notes = [...errs, ...r.warnings];
-                  return (<>
+                  return (<Fragment key={i}>
                     <tr key={i} className={errs.length ? "bg-destructive/10" : r.warnings.length ? "bg-warning/10" : ""}>
                       <td className="p-1"><Input className={`${cell} min-w-[10rem]`} value={r.description ?? ""} onChange={(e) => set(i, { description: e.target.value })} /></td>
                       <td className="p-1"><Input className={cell} inputMode="decimal" defaultValue={r.amount?.toString().replace(".", ",") ?? ""} onChange={(e) => set(i, { amount: num(e.target.value) })} /></td>
@@ -88,7 +88,7 @@ export function ImportExpensesDialog({ onImported }: { onImported?: () => void }
                       <td className="p-1"><Button variant="ghost" size="sm" onClick={() => setRows(rows.filter((_, j) => j !== i))}>Remover</Button></td>
                     </tr>
                     {notes.length > 0 && <tr key={`n${i}`}><td colSpan={11} className={`px-2 pb-2 text-xs ${errs.length ? "text-destructive" : "text-muted-foreground"}`}>{notes.join(" · ")}</td></tr>}
-                  </>);
+                  </Fragment>);
                 })}</tbody>
               </table>
             </div>
