@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { cardNetworks } from "@/lib/cardNetworks";
 
 const brands = [
   { value: "nubank", label: "Nubank" },
@@ -38,6 +39,9 @@ interface AddCardDialogProps {
     name: string;
     last_digits: string;
     credit_limit: number;
+    color?: string | null;
+    network?: string | null;
+    alias?: string | null;
   }) => Promise<{ success: boolean }>;
 }
 
@@ -47,6 +51,10 @@ export function AddCardDialog({ onAdd }: AddCardDialogProps) {
   const [name, setName] = useState("");
   const [lastDigits, setLastDigits] = useState("");
   const [limit, setLimit] = useState("");
+  const [network, setNetwork] = useState("");
+  const [color, setColor] = useState("#8a05be");
+  const [useColor, setUseColor] = useState(false);
+  const [alias, setAlias] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -59,6 +67,11 @@ export function AddCardDialog({ onAdd }: AddCardDialogProps) {
         description: "Preencha todos os campos",
         variant: "destructive",
       });
+      return;
+    }
+
+    if (alias.trim().length > 20) {
+      toast({ title: "Erro", description: "O apelido deve ter até 20 caracteres", variant: "destructive" });
       return;
     }
 
@@ -77,6 +90,9 @@ export function AddCardDialog({ onAdd }: AddCardDialogProps) {
       name,
       last_digits: lastDigits,
       credit_limit: parseFloat(limit),
+      network: network || null,
+      color: useColor ? color : null,
+      alias: alias.trim() || null,
     });
 
     setLoading(false);
@@ -91,6 +107,9 @@ export function AddCardDialog({ onAdd }: AddCardDialogProps) {
       setName("");
       setLastDigits("");
       setLimit("");
+      setNetwork("");
+      setUseColor(false);
+      setAlias("");
     }
   };
 
@@ -108,7 +127,7 @@ export function AddCardDialog({ onAdd }: AddCardDialogProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="brand">Banco/Bandeira</Label>
+            <Label htmlFor="brand">Banco</Label>
             <Select value={brand} onValueChange={setBrand}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o banco" />
@@ -121,6 +140,32 @@ export function AddCardDialog({ onAdd }: AddCardDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Bandeira</Label>
+            <Select value={network} onValueChange={setNetwork}>
+              <SelectTrigger><SelectValue placeholder="Visa, Mastercard, Elo..." /></SelectTrigger>
+              <SelectContent>
+                {cardNetworks.map((n) => <SelectItem key={n.value} value={n.value}>{n.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="alias">Apelido para importar</Label>
+              <Input id="alias" value={alias} maxLength={20} onChange={(e) => setAlias(e.target.value)} placeholder="Ex: NU, Belo" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="color">Cor</Label>
+              <div className="flex items-center gap-2">
+                <Input id="color" type="color" value={color} onChange={(e) => { setColor(e.target.value); setUseColor(true); }} className="h-11 w-16 p-1 cursor-pointer" />
+                {useColor ? (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setUseColor(false)}>Padrão</Button>
+                ) : <span className="text-xs text-muted-foreground">Padrão do banco</span>}
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
