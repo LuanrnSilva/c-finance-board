@@ -10,6 +10,9 @@ export interface CreditCard {
   name: string;
   last_digits: string;
   credit_limit: number;
+  color?: string | null;
+  network?: string | null;
+  alias?: string | null;
 }
 
 export function useCreditCards() {
@@ -50,6 +53,9 @@ export function useCreditCards() {
     name: string;
     last_digits: string;
     credit_limit: number;
+    color?: string | null;
+    network?: string | null;
+    alias?: string | null;
   }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -65,6 +71,9 @@ export function useCreditCards() {
           name: card.name,
           last_digits: card.last_digits,
           credit_limit: card.credit_limit,
+          color: card.color ?? null,
+          network: card.network ?? null,
+          alias: card.alias?.trim() || null,
         })
         .select()
         .single();

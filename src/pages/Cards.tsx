@@ -157,6 +157,9 @@ export default function Cards() {
                     key={card.id} 
                     id={card.id}
                     brand={card.brand}
+                    color={card.color}
+                    network={card.network}
+                    alias={card.alias}
                     name={card.name}
                     lastDigits={card.last_digits}
                     limit={Number(card.credit_limit)}
