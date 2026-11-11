@@ -139,37 +139,46 @@ export type Database = {
       }
       credit_cards: {
         Row: {
+          alias: string | null
           brand: string
+          color: string | null
           created_at: string
           credit_limit: number
           household_id: string
           id: string
           last_digits: string
           name: string
+          network: string | null
           updated_at: string
           used_amount: number
           user_id: string
         }
         Insert: {
+          alias?: string | null
           brand: string
+          color?: string | null
           created_at?: string
           credit_limit?: number
           household_id: string
           id?: string
           last_digits: string
           name: string
+          network?: string | null
           updated_at?: string
           used_amount?: number
           user_id: string
         }
         Update: {
+          alias?: string | null
           brand?: string
+          color?: string | null
           created_at?: string
           credit_limit?: number
           household_id?: string
           id?: string
           last_digits?: string
           name?: string
+          network?: string | null
           updated_at?: string
           used_amount?: number
           user_id?: string

@@ -179,6 +179,9 @@ export default function Dashboard() {
                   key={card.id}
                   id={card.id}
                   brand={card.brand}
+                  color={card.color}
+                  network={card.network}
+                  alias={card.alias}
                   name={card.name}
                   lastDigits={card.last_digits}
                   limit={card.credit_limit}

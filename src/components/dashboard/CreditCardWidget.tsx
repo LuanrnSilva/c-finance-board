@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { networkLabel } from "@/lib/cardNetworks";
 import { EditCardLimitDialog } from "@/components/cards/EditCardLimitDialog";
 
 interface CreditCardWidgetProps {
@@ -8,6 +9,9 @@ interface CreditCardWidgetProps {
   lastDigits: string;
   limit: number;
   used: number;
+  color?: string | null;
+  network?: string | null;
+  alias?: string | null;
   onUpdateLimit?: (id: string, updates: { credit_limit: number }) => Promise<{ success: boolean }>;
 }
 
@@ -31,6 +35,9 @@ export function CreditCardWidget({
   lastDigits,
   limit,
   used,
+  color,
+  network,
+  alias,
   onUpdateLimit,
 }: CreditCardWidgetProps) {
   const config = brandConfig[brand] || { gradient: "card-nubank", logo: brand.charAt(0).toUpperCase() };
@@ -48,8 +55,9 @@ export function CreditCardWidget({
     <div
       className={cn(
         "relative p-5 rounded-2xl text-white min-h-[180px] flex flex-col justify-between overflow-hidden",
-        config.gradient
+        !color && config.gradient
       )}
+      style={color ? { background: `linear-gradient(135deg, ${color}, ${color}cc)` } : undefined}
     >
       {onUpdateLimit && (
         <EditCardLimitDialog
@@ -66,9 +74,16 @@ export function CreditCardWidget({
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-6">
           <span className="font-bold text-lg">{config.logo}</span>
-          <div className="flex gap-1">
-            <div className="w-6 h-6 rounded-full bg-white/30" />
-            <div className="w-6 h-6 rounded-full bg-white/20 -ml-3" />
+          <div className="flex items-center gap-2">
+            {alias && <span className="text-xs font-semibold px-2 py-0.5 rounded bg-black/20">{alias}</span>}
+            {network ? (
+              <span className="text-xs font-bold uppercase tracking-wide">{networkLabel(network)}</span>
+            ) : (
+              <div className="flex gap-1">
+                <div className="w-6 h-6 rounded-full bg-white/30" />
+                <div className="w-6 h-6 rounded-full bg-white/20 -ml-3" />
+              </div>
+            )}
           </div>
         </div>
 
