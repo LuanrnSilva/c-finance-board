@@ -16,3 +16,5 @@
 - Expense suggestions call Lovable AI only through an authenticated Edge Function with server-held prompts and credentials; category/card choices come from RLS-visible data and suggestions never save transactions automatically.
 - Transaction amount inputs accept decimal commas through the shared parser; mobile forms use native date controls and explicit input modes to preserve valid dates and accessible touch targets.
 - Monthly expense schedules are household-scoped and changed only through validated RPCs; a daily São Paulo job and authenticated transaction refresh generate due entries idempotently, preserving the original billing day across short months and keeping future projections separate from actual transactions.
+
+- Imported expense lists are parsed by the parse-expenses Edge Function (LLM + server-side total checks) and saved to expenses; a DB trigger generates expense_occurrences monthly — keeps occurrence rules in one place.

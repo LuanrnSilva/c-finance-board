@@ -20,6 +20,7 @@ import { usePeople } from "@/hooks/usePeople";
 import { useCategories } from "@/hooks/useCategories";
 import type { NewTransaction } from "@/types/transaction";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ImportExpensesDialog } from "@/components/expenses/ImportExpensesDialog";
 import { RecurringSchedulesPanel } from "@/components/transactions/RecurringSchedulesPanel";
 
 export default function Transactions() {
@@ -62,6 +63,7 @@ export default function Transactions() {
               onDelete={deleteCategory}
             />
             <ManagePeopleDialog people={people} onAdd={addPerson} onDelete={deletePerson} />
+            <ImportExpensesDialog />
             <AddTransactionDialog onAdd={handleAddTransaction} cards={cards} people={people} categories={categories} />
           </div>
         </div>
